@@ -7,9 +7,20 @@
 <body>
 <p>Проекты пользователя</p>
 <a href="{% url 'profils:CreateProjects' %}">Создать проект</a>
-{% for project in projects.all %}
-    <p>{{project.name_project}}</p>
-    <a href="{{ project.get_absolute_url }}">Подробнее</a>
+
+{% for contact in page_obj %}
+    <p>{{ contact }}</p>
+    <a href="{{ contact.get_absolute_url }}">Подробнее</a>
 {% endfor %}
+
+<nav>
+    <ul>
+        {% for p in page_obj.paginator.page_range %}
+        <li>
+            <a href="?page={{ p }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</nav>
 </body>
 </html>

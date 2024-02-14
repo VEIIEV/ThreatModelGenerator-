@@ -1,6 +1,7 @@
 
 
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import path
@@ -50,11 +51,18 @@ class Registration(View):
         return render(request, 'profils/registration.html')
 
 
-@login_required(login_url='profils:logun_users')
-def MyAccount(request):
-    return render(request, 'profils/my_account.html')
+# @login_required(login_url='profils:logun_users')
+# def MyAccount(request):
+#     return render(request, 'profils/my_account.html')
+
+class MyAccount(View):
+    @login_required(login_url='profils:logun_users')
+    def post(self, request):
+        pass
 
 
+    def get(self, request):
+        return render(request, 'profils/my_account.html')
 
 
 
@@ -91,11 +99,19 @@ class CreateProject(View):
 
 @login_required(login_url='profils:logun_users')
 def Projects(request):
+    paginate_by = 4
     users_project = Projcets.objects.filter(user_id=request.user.id)
+    paginator = Paginator(users_project, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     data = {
-        'projects': users_project
+        'projects': users_project,
+        'page_obj':page_obj
     }
     return render(request, 'profils/my_projects.html', context=data)
+
+
+
 
 def Show_Projects(request,id):
     users_project = Projcets.objects.filter(id=id)

@@ -34,7 +34,7 @@ urlpatterns = [
 
     path('registration/', Registration.as_view(), name='Registration'),
     path('projects/<int:id>/', Show_Projects, name='detail_project'),
-    path('my_account/', MyAccount, name='MyAccount'),
+    path('my_account/', MyAccount.as_view(), name='MyAccount'),
     path('projects/', Projects, name='projects'),
     path('create_projects/', CreateProject.as_view(), name='CreateProjects'),
 
