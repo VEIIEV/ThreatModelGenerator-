@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>Проекты пользователя</p>
+<a href="{% url 'profils:CreateProjects' %}">Создать проект</a>
+{% for project in projects.all %}
+    <p>{{project.name_project}}</p>
+    <a href="{{ project.get_absolute_url }}">Подробнее</a>
+{% endfor %}
+</body>
+</html>

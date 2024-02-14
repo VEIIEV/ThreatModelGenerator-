@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action = "{% url 'profils:CreateProjects' %}" method="post">
+        {% csrf_token %}
+        <p>name_project</p>
+        <input type="text" name="name_project">
+        <p>is_wireless_tech</p>
+        <input type="text" name="is_wireless_tech">
+        <p>is_cloud_tech</p>
+        <input type="text" name="is_cloud_tech" />
+        <p>is_virtual_tech</p>
+        <input type="text" name="is_virtual_tech" />
+        <p>protection_class</p>
+        <input type="text" name="protection_class" />
+        <p><input type="submit" value="Create"></p>
+</form>
+</body>
+</html>
