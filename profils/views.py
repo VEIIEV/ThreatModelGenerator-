@@ -1,5 +1,4 @@
-
-
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse
@@ -56,14 +55,35 @@ class Registration(View):
 #     return render(request, 'profils/my_account.html')
 
 class MyAccount(View):
-    @login_required(login_url='profils:logun_users')
     def post(self, request):
-        pass
-
-
+        if request.user.is_authenticated:
+            if request.POST['newpassword'] == '':
+                if request.user.is_authenticated:
+                    profile = User.objects.get(id=request.user.id)
+                    profile.first_name = request.POST['firstname']
+                    profile.last_name = request.POST['lastname']
+                    profile.email = request.POST['email']
+                    profile.save()
+                    return render(request, 'profils/my_account.html')
+                else:
+                    return render(request, 'profils/logun_users.html')
+            else:
+                u = User.objects.get(id=request.user.id)
+                u.set_password(request.POST['newpassword'])
+                u.save()
+                return render(request, 'profils/my_account.html')
+        else:
+            return render(request, 'profils/logun_users.html')
     def get(self, request):
-        return render(request, 'profils/my_account.html')
+        if request.user.is_authenticated:
+            profile = User.objects.get(id=request.user.id)
 
+            data = {
+                'user': profile
+            }
+            return render(request, 'profils/my_account.html', context=data)
+        else:
+            return render(request, 'profils/logun_users.html')
 
 
 
@@ -116,4 +136,5 @@ def Projects(request):
 def Show_Projects(request,id):
     users_project = Projcets.objects.filter(id=id)
     return HttpResponse(f"Отображение статьи с id = {users_project[0].id}")
+
 

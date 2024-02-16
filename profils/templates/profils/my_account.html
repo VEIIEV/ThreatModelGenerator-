@@ -5,13 +5,33 @@
     <title>Профиль</title>
 </head>
 <body>
+<a href="{% url 'profils:rend_glavn' %}">На главную</a>
 <p>{{ request.user }} это страница вашего профиля, тут вы можете что то</p>
 <p>Смена пароля</p>
-<form>
+
+    <p>{{ user.first_name }}</p>
+    <p>{{ user.last_name }}</p>
+
+<p>Форма для смены своих данных</p>
+<form action = "{% url 'profils:MyAccount' %}" method="post">
+        {% csrf_token %}
+        <p>Имя</p>
+        <input type="text" name="firstname" value={{user.first_name}} >
+        <p>Фамилия</p>
+        <input type="text" name="lastname" value={{user.last_name}} >
+        <p>Почта</p>
+        <input type="email" name="email" value={{user.email}}>
+        <p><input type="submit" value="Сохранить"></p>
+</form>
+<br>
+<p>Смена пароля</p>
+<form method="post">
     {% csrf_token %}
-        <p>Смена имени</p>
-        <input type="text" name="login">
-        <p><input type="submit" value="Log-in"></p>
+    <p>Введите старый пароль</p>
+    <input type="text" name="oldpassword">
+    <p>Введите новый пароль</p>
+    <input type="text" name="newpassword">
+    <p><input type="submit" value="Сохранить"></p>
 </form>
 </body>
 </html>

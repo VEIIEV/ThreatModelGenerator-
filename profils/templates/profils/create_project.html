@@ -5,6 +5,7 @@
     <title>Title</title>
 </head>
 <body>
+<a href="{% url 'profils:rend_glavn' %}">На главную</a>
 <form action = "{% url 'profils:CreateProjects' %}" method="post">
         {% csrf_token %}
         <p>name_project</p>
