@@ -32,12 +32,12 @@ class CreateProject(View):
                                 is_virtual_tech=is_virtual,
                                 protection_class=request.POST['protection_class'],
                                 user_id=request.user.id)
-        return render(request, '../templates/projects/profils/templates/projects/my_projects.html')
+        return render(request, '../templates/projects/my_projects.html')
 
     def get(self, request):
         print(request)
         print(1)
-        return render(request, '../templates/projects/profils/templates/projects/create_project.html')
+        return render(request, '../templates/projects/create_project.html')
 
 
 @login_required(login_url='profils:logun_users')
@@ -51,7 +51,7 @@ def Projects_list(request):
         'projects': users_project,
         'page_obj':page_obj
     }
-    return render(request, '../templates/projects/profils/templates/projects/my_projects.html', context=data)
+    return render(request, '../templates/projects/my_projects.html', context=data)
 
 
 
@@ -61,7 +61,7 @@ def Show_Projects(request,id):
     data = {
         'project': users_project
     }
-    return render(request, '../templates/projects/profils/templates/projects/detail_project.html', data)
+    return render(request, '../templates/projects/detail_project.html', data)
 
 
 

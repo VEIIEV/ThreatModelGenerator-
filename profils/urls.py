@@ -13,23 +13,23 @@ urlpatterns = [
 
     path('password-reset/',
          PasswordResetView.as_view(
-             template_name="../templates/projects/profils/../templates/profils/password_reset_form.html",
+             template_name="../templates/profils/password_reset_form.html",
              email_template_name="profils/password_reset_email.html",
              success_url=reverse_lazy("profils:password_reset_done")
          ),
          name='password_reset'),
 
     path('password-reset/done/',
-         PasswordResetDoneView.as_view(template_name="../templates/projects/profils/../templates/profils/password_reset_done.html"),
+         PasswordResetDoneView.as_view(template_name="../templates/profils/password_reset_done.html"),
          name='password_reset_done'),
 
     path('password-reset/<uidb64>/<token>/',
-         PasswordResetConfirmView.as_view(template_name="../templates/projects/profils/../templates/profils/password_reset_confirm.html",
+         PasswordResetConfirmView.as_view(template_name="../templates/profils/password_reset_confirm.html",
                                           success_url=reverse_lazy("profils:password_reset_complete")),
          name='password_reset_confirm'),
 
     path('password-reset/complete/',
-         PasswordResetDoneView.as_view(template_name="../templates/projects/profils/../templates/profils/password_reset_complete.html"),
+         PasswordResetDoneView.as_view(template_name="../templates/profils/password_reset_complete.html"),
          name='password_reset_complete'),
 
     path('registration/', Registration.as_view(), name='Registration'),
