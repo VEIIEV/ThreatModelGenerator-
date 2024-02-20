@@ -5,8 +5,10 @@
     <title>Title</title>
 </head>
 <body>
+<a href="{% url 'projects:projects' %}">Мои проекты</a>
 <p>Тут мы видим информацию о проекте</p>
-
-
+<p>Выгрузить проект</p>
+<a href="{% url 'projects:Download' %}">Скачать</a>
+<p>{{ project.id }}</p>
 </body>
 </html>

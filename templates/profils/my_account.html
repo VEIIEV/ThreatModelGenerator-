@@ -6,11 +6,8 @@
 </head>
 <body>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
-<p>{{ request.user }} это страница вашего профиля, тут вы можете что то</p>
-<p>Смена пароля</p>
+<p>{{ request.user }}</p>
 
-    <p>{{ user.first_name }}</p>
-    <p>{{ user.last_name }}</p>
 
 <p>Форма для смены своих данных</p>
 <form action = "{% url 'profils:MyAccount' %}" method="post">

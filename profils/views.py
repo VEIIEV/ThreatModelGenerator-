@@ -1,3 +1,4 @@
+import xlwt
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -6,19 +7,19 @@ from django.shortcuts import render, redirect
 from django.urls import path
 from django.views import View
 from django.views.generic import ListView
-
-from .models import User, Projcets
+from projects.models import Projects
+from .models import User
 from . import views
 from django.contrib.auth import views as auth_views, login, authenticate, logout
 
 
 def Render_Main(request):
-    return render(request, 'profils/main.html')
+    return render(request, '../templates/projects/profils/../templates/profils/main.html')
 
 
 @login_required(login_url='profils:logun_users')
 def Render_glavn(request):
-    return render(request, 'profils/glavn_str.html')
+    return render(request, '../templates/projects/profils/../templates/profils/glavn_str.html')
 
 
 class UserLoginView(View):
@@ -28,10 +29,10 @@ class UserLoginView(View):
         if user:
             login(request, user)
             return redirect('profils:rend_glavn')
-        return render(request, 'profils/logun_users.html')
+        return render(request, '../templates/projects/profils/../templates/profils/logun_users.html')
 
     def get(self, request):
-        return render(request, 'profils/logun_users.html')
+        return render(request, '../templates/projects/profils/../templates/profils/logun_users.html')
 
 
 class UserLogoutView(View):
@@ -44,10 +45,10 @@ class Registration(View):
     def post(self, request):
         User.objects.create_user(username=request.POST['login'], password=request.POST['password'],
                                  email=request.POST['mail'])
-        return render(request, 'profils/logun_users.html')
+        return render(request, '../templates/projects/profils/../templates/profils/logun_users.html')
 
     def get(self, request):
-        return render(request, 'profils/registration.html')
+        return render(request, '../templates/projects/profils/../templates/profils/registration.html')
 
 
 # @login_required(login_url='profils:logun_users')
@@ -64,16 +65,16 @@ class MyAccount(View):
                     profile.last_name = request.POST['lastname']
                     profile.email = request.POST['email']
                     profile.save()
-                    return render(request, 'profils/my_account.html')
+                    return render(request, '../templates/projects/profils/../templates/profils/my_account.html')
                 else:
-                    return render(request, 'profils/logun_users.html')
+                    return render(request, '../templates/projects/profils/../templates/profils/logun_users.html')
             else:
                 u = User.objects.get(id=request.user.id)
                 u.set_password(request.POST['newpassword'])
                 u.save()
-                return render(request, 'profils/my_account.html')
+                return render(request, '../templates/projects/profils/../templates/profils/my_account.html')
         else:
-            return render(request, 'profils/logun_users.html')
+            return render(request, '../templates/projects/profils/../templates/profils/logun_users.html')
     def get(self, request):
         if request.user.is_authenticated:
             profile = User.objects.get(id=request.user.id)
@@ -81,60 +82,8 @@ class MyAccount(View):
             data = {
                 'user': profile
             }
-            return render(request, 'profils/my_account.html', context=data)
+            return render(request, '../templates/projects/profils/../templates/profils/my_account.html', context=data)
         else:
-            return render(request, 'profils/logun_users.html')
-
-
-
-class CreateProject(View):
-
-    def post(self, request):
-        if request.POST['is_wireless_tech'] == 'True':
-            is_wireless = True
-        else:
-            is_wireless = False
-        if request.POST['is_cloud_tech'] == 'True':
-            is_cloud = True
-        else:
-            is_cloud = False
-        if request.POST['is_virtual_tech'] == 'True':
-            is_virtual = True
-        else:
-            is_virtual = False
-
-        print('1')
-        Projcets.objects.create(name_project=request.POST['name_project'],
-                                is_wireless_tech=is_wireless,
-                                is_cloud_tech=is_cloud,
-                                is_virtual_tech=is_virtual,
-                                protection_class=request.POST['protection_class'],
-                                user_id=request.user.id)
-        return render(request, 'profils/my_projects.html')
-
-    def get(self, request):
-        print(request)
-        print(1)
-        return render(request, 'profils/create_project.html')
-
-@login_required(login_url='profils:logun_users')
-def Projects(request):
-    paginate_by = 4
-    users_project = Projcets.objects.filter(user_id=request.user.id)
-    paginator = Paginator(users_project, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    data = {
-        'projects': users_project,
-        'page_obj':page_obj
-    }
-    return render(request, 'profils/my_projects.html', context=data)
-
-
-
-
-def Show_Projects(request,id):
-    users_project = Projcets.objects.filter(id=id)
-    return HttpResponse(f"Отображение статьи с id = {users_project[0].id}")
+            return render(request, '../templates/projects/profils/../templates/profils/logun_users.html')
 
 
