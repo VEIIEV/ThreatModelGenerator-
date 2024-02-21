@@ -26,12 +26,25 @@ class R_person(models.Model):
     name = models.CharField(max_length=255)
     appointment = models.CharField(max_length=255)
 
-class Risks(models.Model):
-    Identifier = models.CharField(max_length=10)
-    name = models.CharField(max_length=200)
-    description = models.CharField(max_length=200)
-    the_object_of_influence = models.CharField(max_length=300)
-    components = models.CharField(max_length=300)
-    implementation_methods = models.CharField(max_length=400)
-    potential_violator = models.CharField(max_length=400)
-    protection_measures = models.CharField(max_length=400)
+class Capec(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    typical_severity = models.CharField(max_length=20)
+    execution_flow = models.CharField(max_length=255)
+    parent_id = models.IntegerField(null=True, blank=True, default=None)
+    child_id = models.IntegerField(null=True, blank=True, default=None)
+    consequences = models.CharField(max_length=255)
+class Bdu(models.Model):
+    """Название, условное обозначение (вида УБИ.001), описание,
+объект воздействия, последствия реализации угрозы, форейн ки
+на капек, (форейн ки на нарушителей)/(хранить нарушителей как
+список), флаги:
+object_impact- распарсить и спарсить
+"""
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    object_impact = models.CharField(max_length=500)
+    violator = models.CharField(max_length=255)
+    capecs = models.ManyToManyField(Capec)
