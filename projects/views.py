@@ -1,3 +1,8 @@
+import re
+from django.urls import reverse
+import pandas as pd
+from django.urls import reverse
+from .models import Capec,Bdu
 import xlwt
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -12,6 +17,15 @@ from .models import Projects
 class CreateProject(View):
 
     def post(self, request):
+        # data = pd.read_excel('vygruzka_kapeka.xlsx')
+        # for index, row in data.iterrows():
+        #     child_id = str(row['Related Attack Patterns'])
+        #     for i in re.finditer(r'ChildOf:CAPEC ID:(\d+)', child_id):
+        #         id_n = int(i.group(1))
+        #         my_model = Capec(id=row["'ID"], name=row['Name'], description=row['Description'],
+        #                          typical_severity=row['Typical Severity'], execution_flow=row['Execution Flow'],
+        #                          parent_id=id_n, consequences=row['Consequences'])
+        #         my_model.save()
         if request.POST['is_wireless_tech'] == 'True':
             is_wireless = True
         else:
@@ -49,7 +63,7 @@ def Projects_list(request):
     page_obj = paginator.get_page(page_number)
     data = {
         'projects': users_project,
-        'page_obj':page_obj
+        'page_obj': page_obj
     }
     return render(request, '../templates/projects/my_projects.html', context=data)
 
@@ -94,3 +108,27 @@ def Download_Project(request):
 
     wb.save(response)
     return response
+
+
+
+# Читаем данные из Excel файла
+
+# data = pd.read_excel('vygruzka_kapeka.xlsx')
+# # Проходим по каждой строке данных и сохраняем их в БД Django
+# for index, row in data.iterrows():
+#     child_id = row['Related Attack Patterns']
+#     for i in re.finditer(r'ChildOf:CAPEC ID:(\d+)', child_id):
+#         id = int(i.group(1))
+#         my_model = Capec(id=row['ID'], name=row['Name'], description=row['Description'],
+#                          typical_severity=row['Typical Severity'], execution_flow=row['Execution Flow'],
+#                          child_id=id,consequences=row['Consequences'])
+#         my_model.save()
+
+    # id = models.IntegerField(primary_key=True)
+    # name = models.CharField(max_length=255)
+    # description = models.CharField(max_length=255)
+    # typical_severity = models.CharField(max_length=20)
+    # execution_flow = models.CharField(max_length=255)
+    # parent_id = models.IntegerField(null=True, blank=True, default=None)
+    # child_id = models.IntegerField(null=True, blank=True, default=None)
+    # consequences = models.CharField(max_length=255)

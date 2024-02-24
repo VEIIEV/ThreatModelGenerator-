@@ -18,7 +18,7 @@ class Projects(models.Model):
         return f"{self.protection_class} {self.is_virtual_tech}"
 
     def get_absolute_url(self):
-        return reverse('profils:detail_project', kwargs={'id': self.pk})
+        return reverse('projects:detail_project', kwargs={'id': self.pk})
 
 
 class R_person(models.Model):
@@ -28,13 +28,15 @@ class R_person(models.Model):
 
 class Capec(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    typical_severity = models.CharField(max_length=20)
-    execution_flow = models.CharField(max_length=255)
+    name = models.CharField(max_length=20000)
+    description = models.CharField(max_length=20000)
+    typical_severity = models.CharField(max_length=20000)
+    execution_flow = models.CharField(max_length=20000)
     parent_id = models.IntegerField(null=True, blank=True, default=None)
     child_id = models.IntegerField(null=True, blank=True, default=None)
-    consequences = models.CharField(max_length=255)
+    consequences = models.CharField(max_length=20000)
+
+
 class Bdu(models.Model):
     """Название, условное обозначение (вида УБИ.001), описание,
 объект воздействия, последствия реализации угрозы, форейн ки
