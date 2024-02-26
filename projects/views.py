@@ -58,7 +58,7 @@ class CreateProject(View):
 def Projects_list(request):
     paginate_by = 4
     users_project = Projects.objects.filter(user_id=request.user.id)
-    paginator = Paginator(users_project, 5)
+    paginator = Paginator(users_project, 2)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     data = {
@@ -132,3 +132,4 @@ def Download_Project(request):
     # parent_id = models.IntegerField(null=True, blank=True, default=None)
     # child_id = models.IntegerField(null=True, blank=True, default=None)
     # consequences = models.CharField(max_length=255)
+

@@ -5,6 +5,7 @@
     <title>Title</title>
 </head>
 <body>
+<p>Первый уровень теста</p>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
 <form action = "{% url 'projects:CreateProjects' %}" method="post">
         {% csrf_token %}

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>Ответственные за проект</p>
+<form method="post">
+    {% csrf_token %}
+        <p>Имя ответственного</p>
+        <input type="text" name="name_person">
+
+</form>
+</body>
+</html>

@@ -9,6 +9,7 @@ from django.views import View
 from django.views.generic import ListView
 from projects.models import Projects
 from .models import User
+from projects.models import NegativeConsequences
 from . import views
 from django.contrib.auth import views as auth_views, login, authenticate, logout
 
@@ -87,3 +88,15 @@ class MyAccount(View):
             return render(request, '../templates/profils/logun_users.html')
 
 
+class creating_custom_NE(View):
+
+    def post(self,request:HttpRequest):
+        NegativeConsequences.objects.create(name=request.POST['name_negative'], type=request.POST['type_negative'])
+        return render(request, '../templates/profils/creating_custom_NE.html')
+
+    # class NegativeConsequences(models.Model):
+    #     name = models.CharField(max_length=255)
+    #     type = models.CharField(max_length=255)
+    #     objectofinfluence = models.ManyToManyField(ObjectOfInfluence)
+    def get(self, request):
+        return render(request, '../templates/profils/creating_custom_NE.html')

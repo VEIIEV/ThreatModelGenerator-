@@ -1,7 +1,9 @@
+import profile
+
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView
 from django.urls import path, reverse_lazy
 
-from .views import Render_Main, UserLoginView, UserLogoutView, Render_glavn, Registration, MyAccount
+from .views import Render_Main, UserLoginView, UserLogoutView, Render_glavn, Registration, MyAccount, creating_custom_NE
 
 app_name = 'profils'
 
@@ -33,5 +35,6 @@ urlpatterns = [
 
     path('registration/', Registration.as_view(), name='Registration'),
     path('my_account/', MyAccount.as_view(), name='MyAccount'),
+    path('creating_custom_NE/', creating_custom_NE.as_view(), name='creating_custom_NE')
 
 ]

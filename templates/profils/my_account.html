@@ -8,6 +8,7 @@
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
 <p>{{ request.user }}</p>
 
+<a href="{% url 'profils:creating_custom_NE' %}">Создание кастомных негативных последствий</a>
 
 <p>Форма для смены своих данных</p>
 <form action = "{% url 'profils:MyAccount' %}" method="post">

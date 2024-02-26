@@ -1,4 +1,4 @@
-from audioop import reverse
+from django.urls import reverse
 
 from django.db import models
 
@@ -25,6 +25,7 @@ class R_person(models.Model):
     """Ответственные за проект"""
     name = models.CharField(max_length=255)
     appointment = models.CharField(max_length=255)
+    projects = models.ForeignKey(Projects, on_delete=models.PROTECT, null=True)
 
 class Capec(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -50,3 +51,12 @@ object_impact- распарсить и спарсить
     object_impact = models.CharField(max_length=500)
     violator = models.CharField(max_length=255)
     capecs = models.ManyToManyField(Capec)
+
+
+class ObjectOfInfluence(models.Model):
+    name = models.CharField(max_length=255)
+    bdu = models.ManyToManyField(Bdu)
+class NegativeConsequences(models.Model):
+    name = models.CharField(max_length=255)
+    type = models.CharField(max_length=255)
+    objectofinfluence = models.ManyToManyField(ObjectOfInfluence)
