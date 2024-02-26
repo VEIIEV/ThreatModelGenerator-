@@ -1,8 +1,3 @@
-import re
-from django.urls import reverse
-import pandas as pd
-from django.urls import reverse
-from .models import Capec,Bdu
 import xlwt
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
