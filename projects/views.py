@@ -1,26 +1,29 @@
+import pandas as pd
 import xlwt
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, request
 from django.shortcuts import render
 from django.views import View
 
 from profils.models import User
-from .models import Projects
+from .models import Projects, Bdus
 
 
 class CreateProject(View):
-
+    # id = models.IntegerField(primary_key=True)
+    # name = models.CharField(max_length=255)
+    # description = models.CharField(max_length=255)
+    # object_impact = models.CharField(max_length=500)
+    # violator = models.CharField(max_length=255)
+    # capecs = models.ManyToManyField(Capec)
     def post(self, request):
-        # data = pd.read_excel('vygruzka_kapeka.xlsx')
-        # for index, row in data.iterrows():
-        #     child_id = str(row['Related Attack Patterns'])
-        #     for i in re.finditer(r'ChildOf:CAPEC ID:(\d+)', child_id):
-        #         id_n = int(i.group(1))
-        #         my_model = Capec(id=row["'ID"], name=row['Name'], description=row['Description'],
-        #                          typical_severity=row['Typical Severity'], execution_flow=row['Execution Flow'],
-        #                          parent_id=id_n, consequences=row['Consequences'])
-        #         my_model.save()
+        #data = pd.read_excel('bduxlsx.xlsx')
+        #for index, row in data.iterrows():
+        #    my_model = Bdu(id=row["Идентификатор УБИ"], name=row['Наименование УБИ'], description=row['Описание'],
+        #                               object_impact=row['Объект воздействия'], violator=row['Источник угрозы (характеристика и потенциал нарушителя)'])
+        #    my_model.save()
+
         if request.POST['is_wireless_tech'] == 'True':
             is_wireless = True
         else:
@@ -43,9 +46,8 @@ class CreateProject(View):
                                 user_id=request.user.id)
         return render(request, '../templates/projects/my_projects.html')
 
+
     def get(self, request):
-        print(request)
-        print(1)
         return render(request, '../templates/projects/create_project.html')
 
 
@@ -63,15 +65,12 @@ def Projects_list(request):
     return render(request, '../templates/projects/my_projects.html', context=data)
 
 
-
-
-def Show_Projects(request,id):
+def Show_Projects(request, id):
     users_project = Projects.objects.get(id=id)
     data = {
         'project': users_project
     }
     return render(request, '../templates/projects/detail_project.html', data)
-
 
 
 def Download_Project(request):
@@ -104,8 +103,6 @@ def Download_Project(request):
     wb.save(response)
     return response
 
-
-
 # Читаем данные из Excel файла
 
 # data = pd.read_excel('vygruzka_kapeka.xlsx')
@@ -119,12 +116,11 @@ def Download_Project(request):
 #                          child_id=id,consequences=row['Consequences'])
 #         my_model.save()
 
-    # id = models.IntegerField(primary_key=True)
-    # name = models.CharField(max_length=255)
-    # description = models.CharField(max_length=255)
-    # typical_severity = models.CharField(max_length=20)
-    # execution_flow = models.CharField(max_length=255)
-    # parent_id = models.IntegerField(null=True, blank=True, default=None)
-    # child_id = models.IntegerField(null=True, blank=True, default=None)
-    # consequences = models.CharField(max_length=255)
-
+# id = models.IntegerField(primary_key=True)
+# name = models.CharField(max_length=255)
+# description = models.CharField(max_length=255)
+# typical_severity = models.CharField(max_length=20)
+# execution_flow = models.CharField(max_length=255)
+# parent_id = models.IntegerField(null=True, blank=True, default=None)
+# child_id = models.IntegerField(null=True, blank=True, default=None)
+# consequences = models.CharField(max_length=255)
