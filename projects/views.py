@@ -5,25 +5,24 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, request
 from django.shortcuts import render
 from django.views import View
+import re
 
 from profils.models import User
-from .models import Projects, Bdus
+from .models import Projects, Capecs, Bdus
 
 
 class CreateProject(View):
-    # id = models.IntegerField(primary_key=True)
-    # name = models.CharField(max_length=255)
-    # description = models.CharField(max_length=255)
-    # object_impact = models.CharField(max_length=500)
-    # violator = models.CharField(max_length=255)
-    # capecs = models.ManyToManyField(Capec)
-    def post(self, request):
-        #data = pd.read_excel('bduxlsx.xlsx')
-        #for index, row in data.iterrows():
-        #    my_model = Bdu(id=row["Идентификатор УБИ"], name=row['Наименование УБИ'], description=row['Описание'],
-        #                               object_impact=row['Объект воздействия'], violator=row['Источник угрозы (характеристика и потенциал нарушителя)'])
-        #    my_model.save()
 
+    def post(self, request):
+        # data = pd.read_excel('vygruzka_kapeka.xlsx')
+        # for index, row in data.iterrows(): d
+        #     child_id = str(row['Related Attack Patterns'])
+        #     for i in re.finditer(r'ChildOf:CAPEC ID:(\d+)', child_id):
+        #         id_n = int(i.group(1))
+        #         my_model = Capec(id=row["'ID"], name=row['Name'], description=row['Description'],
+        #                          typical_severity=row['Typical Severity'], execution_flow=row['Execution Flow'],
+        #                          parent_id=id_n, consequences=row['Consequences'])
+        #         my_model.save()
         if request.POST['is_wireless_tech'] == 'True':
             is_wireless = True
         else:
@@ -116,11 +115,35 @@ def Download_Project(request):
 #                          child_id=id,consequences=row['Consequences'])
 #         my_model.save()
 
-# id = models.IntegerField(primary_key=True)
-# name = models.CharField(max_length=255)
-# description = models.CharField(max_length=255)
-# typical_severity = models.CharField(max_length=20)
-# execution_flow = models.CharField(max_length=255)
-# parent_id = models.IntegerField(null=True, blank=True, default=None)
-# child_id = models.IntegerField(null=True, blank=True, default=None)
-# consequences = models.CharField(max_length=255)
+    # id = models.IntegerField(primary_key=True)
+    # name = models.CharField(max_length=255)
+    # description = models.CharField(max_length=255)
+    # typical_severity = models.CharField(max_length=20)
+    # execution_flow = models.CharField(max_length=255)
+    # parent_id = models.IntegerField(null=True, blank=True, default=None)
+    # child_id = models.IntegerField(null=True, blank=True, default=None)
+    # consequences = models.CharField(max_length=255)
+
+
+# todo вынести в апи
+def read_capec(request):
+    data = pd.read_excel('vygruzka_kapeka.xlsx')
+    for index, row in data.iterrows():
+        child_id = str(row['Related Attack Patterns'])
+        for i in re.finditer(r'ChildOf:CAPEC ID:(\d+)', child_id):
+            id_n = int(i.group(1))
+            my_model = Capecs(id=row["'ID"], name=row['Name'], description=row['Description'],
+                              typical_severity=row['Typical Severity'], execution_flow=row['Execution Flow'],
+                              parent_id=id_n, consequences=row['Consequences'])
+            my_model.save()
+    return HttpResponse(content="capec recorded in db", status=200)
+
+
+def read_bdus(request):
+    data = pd.read_excel('bduxlsx.xlsx')
+    for index, row in data.iterrows():
+        my_model = Bdus(id=row["Идентификатор УБИ"], name=row['Наименование УБИ'], description=row['Описание'],
+                        object_impact=row['Объект воздействия'],
+                        violator=row['Источник угрозы (характеристика и потенциал нарушителя)'])
+        my_model.save()
+    return HttpResponse(content="bdu recorded in db", status=200)

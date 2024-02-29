@@ -44,8 +44,8 @@ class Bdus(models.Model):
 object_impact- распарсить и спарсить
 """
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
+    name = models.CharField(max_length=2000)
+    description = models.CharField(max_length=20000)
     object_impact = models.CharField(max_length=500)
     violator = models.CharField(max_length=255)
     capecs = models.ManyToManyField(Capecs)
@@ -64,6 +64,7 @@ class NegativeConsequences(models.Model):
 
 class Projects(models.Model):
     """Модель проектов"""
+    #TODO возможно необходимо добавить связь многие ко многим с бду
 
     # class ProjectStage(models.TextChoices):
     #     CREATED = "CR", gettext_lazy("Created")
@@ -120,3 +121,5 @@ class RPersons(models.Model):
     name = models.CharField(max_length=255)
     appointment = models.CharField(max_length=255)
     projects = models.ForeignKey(Projects, on_delete=models.PROTECT, null=True)
+
+
