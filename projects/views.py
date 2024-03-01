@@ -13,25 +13,23 @@ from .models import Projects, Capecs, Bdus, RPersons
 
 class CreateProject(View):
 
-    # def post(self, request: HttpRequest):
-    #     RPersons.objects.create(name=request.POST['name'], appointment=request.POST['appointment'], projects=2)
-    #
-    #     return render(request, '../templates/projects/create_project_2.html')
-
     def get(self, request: HttpRequest):
-        #todo на все создание проекта будет одна view которая определяет что рендерить и делать в зависимости от стадии
+        # todo на все создание проекта будет одна view которая определяет что рендерить и делать в зависимости от стадии
         stage = request.GET.get('stage')
+        project_id = request.GET.get('id')
+        project = None
+
+        if project_id is not None:
+            project = Projects.objects.get(id=project_id)
         match stage:
             case None:
                 project = Projects.objects.create(user=request.user)
                 project.save()
                 return render(request, '../templates/projects/create_project_1.html', context={'project': project})
             case '1':
-                project_id = request.GET.get('id')
-                project = Projects.objects.get(id=project_id)
                 return render(request, '../templates/projects/create_project_1.html', context={'project': project})
             case '2':
-                pass
+                return render(request, '../templates/projects/create_project_2.html', context={'project': project})
             case '3':
                 pass
             case '4':
@@ -42,6 +40,37 @@ class CreateProject(View):
                 pass
             case '7':
                 pass
+
+    def post(self, request: HttpRequest):
+        stage = request.GET.get('stage')
+        project_id = request.GET.get('id')
+        project = Projects.objects.get(id=project_id)
+
+        if (stage< project.stage):
+            #todo написать менеджер для модели project, который откатывает изменения для соот стадии
+            ...
+
+        match stage:
+            case '1':
+                r_person = RPersons.objects.create(name=request.POST['name'], appointment=request.POST['appointment'],
+                                                   projects=project)
+                project.r_persons.add(r_person)
+                project.stage(project.stage+1)
+                project.save()
+                return render(request, '../templates/projects/create_project_2.html', context={'project': project})
+            case '2':
+                return render(request, '../templates/projects/create_project_3.html', context={'project': project})
+            case '3':
+                pass
+            case '4':
+                pass
+            case '5':
+                pass
+            case '6':
+                pass
+            case '7':
+                pass
+
 
 @login_required(login_url='profils:logun_users')
 def Projects_list(request):
