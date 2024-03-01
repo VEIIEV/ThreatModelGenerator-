@@ -81,18 +81,15 @@ class Projects(models.Model):
     #     default=ProjectStage.CREATED
     # )
 
-    STATUS_CHOICES = (
-        ('d', 'Draft'),
-        ('p', 'Published'),
-    )
+
     class SystemTypes(models.TextChoices):
         GYS = "GYS", _("State Information System")
         ISPDN = "ISP", _("Personal Data Information System")
         KII = "KII", _("Critical Information Infrastructure")
 
-    name_project = models.CharField(max_length=255, default='Тестовый', unique=False, null=False, blank=False)
+    name_project = models.CharField(max_length=255, default='new project', unique=False, null=False, blank=False)
     description = models.TextField(max_length=10000, null=True, blank=True)
-    stage = models.IntegerField(default=0)
+    stage = models.IntegerField(default=1)
     type = models.CharField(
         max_length=3,
         choices=SystemTypes.choices,

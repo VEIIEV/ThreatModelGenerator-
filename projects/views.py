@@ -2,53 +2,46 @@ import pandas as pd
 import xlwt
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse, request
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
 from django.views import View
 import re
 
 from profils.models import User
-from .models import Projects, Capecs, Bdus
+from .models import Projects, Capecs, Bdus, RPersons
 
 
 class CreateProject(View):
 
-    def post(self, request):
-        # data = pd.read_excel('vygruzka_kapeka.xlsx')
-        # for index, row in data.iterrows(): d
-        #     child_id = str(row['Related Attack Patterns'])
-        #     for i in re.finditer(r'ChildOf:CAPEC ID:(\d+)', child_id):
-        #         id_n = int(i.group(1))
-        #         my_model = Capec(id=row["'ID"], name=row['Name'], description=row['Description'],
-        #                          typical_severity=row['Typical Severity'], execution_flow=row['Execution Flow'],
-        #                          parent_id=id_n, consequences=row['Consequences'])
-        #         my_model.save()
-        if request.POST['is_wireless_tech'] == 'True':
-            is_wireless = True
-        else:
-            is_wireless = False
-        if request.POST['is_cloud_tech'] == 'True':
-            is_cloud = True
-        else:
-            is_cloud = False
-        if request.POST['is_virtual_tech'] == 'True':
-            is_virtual = True
-        else:
-            is_virtual = False
+    # def post(self, request: HttpRequest):
+    #     RPersons.objects.create(name=request.POST['name'], appointment=request.POST['appointment'], projects=2)
+    #
+    #     return render(request, '../templates/projects/create_project_2.html')
 
-        print('1')
-        Projects.objects.create(name_project=request.POST['name_project'],
-                                is_wireless_tech=is_wireless,
-                                is_cloud_tech=is_cloud,
-                                is_virtual_tech=is_virtual,
-                                protection_class=request.POST['protection_class'],
-                                user_id=request.user.id)
-        return render(request, '../templates/projects/my_projects.html')
-
-
-    def get(self, request):
-        return render(request, '../templates/projects/create_project.html')
-
+    def get(self, request: HttpRequest):
+        #todo на все создание проекта будет одна view которая определяет что рендерить и делать в зависимости от стадии
+        stage = request.GET.get('stage')
+        match stage:
+            case None:
+                project = Projects.objects.create(user=request.user)
+                project.save()
+                return render(request, '../templates/projects/create_project_1.html', context={'project': project})
+            case '1':
+                project_id = request.GET.get('id')
+                project = Projects.objects.get(id=project_id)
+                return render(request, '../templates/projects/create_project_1.html', context={'project': project})
+            case '2':
+                pass
+            case '3':
+                pass
+            case '4':
+                pass
+            case '5':
+                pass
+            case '6':
+                pass
+            case '7':
+                pass
 
 @login_required(login_url='profils:logun_users')
 def Projects_list(request):
@@ -102,6 +95,7 @@ def Download_Project(request):
     wb.save(response)
     return response
 
+
 # Читаем данные из Excel файла
 
 # data = pd.read_excel('vygruzka_kapeka.xlsx')
@@ -115,14 +109,14 @@ def Download_Project(request):
 #                          child_id=id,consequences=row['Consequences'])
 #         my_model.save()
 
-    # id = models.IntegerField(primary_key=True)
-    # name = models.CharField(max_length=255)
-    # description = models.CharField(max_length=255)
-    # typical_severity = models.CharField(max_length=20)
-    # execution_flow = models.CharField(max_length=255)
-    # parent_id = models.IntegerField(null=True, blank=True, default=None)
-    # child_id = models.IntegerField(null=True, blank=True, default=None)
-    # consequences = models.CharField(max_length=255)
+# id = models.IntegerField(primary_key=True)
+# name = models.CharField(max_length=255)
+# description = models.CharField(max_length=255)
+# typical_severity = models.CharField(max_length=20)
+# execution_flow = models.CharField(max_length=255)
+# parent_id = models.IntegerField(null=True, blank=True, default=None)
+# child_id = models.IntegerField(null=True, blank=True, default=None)
+# consequences = models.CharField(max_length=255)
 
 
 # todo вынести в апи

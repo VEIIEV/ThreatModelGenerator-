@@ -5,9 +5,8 @@
     <title>Title</title>
 </head>
 <body>
-<p>Первый уровень теста</p>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
-<form action = "{% url 'projects:CreateProjects' %}" method="post">
+<form action = "{% url 'profils:CreateProjects' %}" method="post">
         {% csrf_token %}
         <p>name_project</p>
         <input type="text" name="name_project">
@@ -21,5 +20,12 @@
         <input type="text" name="protection_class" />
         <p><input type="submit" value="Create"></p>
 </form>
+
+<a href="{% url 'profils:rend_glavn' %}">На главную</a>
+
 </body>
 </html>
+
+есть кнопка
+далее
+сохранить - оставляет тебя на той же странице, фисирует изменение

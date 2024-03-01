@@ -10,5 +10,7 @@
 <p>Выгрузить проект</p>
 <a href="{% url 'projects:Download' %}">Скачать</a>
 <p>{{ project.id }}</p>
+<p>{{ project.stage }}</p>
+<a href="{% url 'projects:CreateProject' %}?id={{ project.id }}&stage={{ project.stage }}">редактировать</a>
 </body>
 </html>
