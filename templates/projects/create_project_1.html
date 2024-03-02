@@ -17,15 +17,16 @@
     <li><a href="create_project_2.html">7</a></li>
     
 </ul>
-<form action = "{% url 'projects:CreateProject' %}?stage=2" method="post">
+<form action = "{% url 'projects:CreateProject' %}?stage=1&id={{ project.id }}" method="post">
         {% csrf_token %}
         <p>название проекта</p>
-        <input type="text" name="name_project">
+        <input type="text" name="name_project" placeholder="{{ project.name }}">
         <p>ответственное лицо</p>
+    
         <p>имя</p>
-        <input type="text" name="name">
+        <input type="text" name="rperson_name" placeholder="{{ project.r_persons.name }}">
         <p>должность</p>
-        <input type="text" name="appointment" />
+        <input type="text" name="appointment" placeholder="{{ project.r_persons.appointment }}"/>
         <p><input type="submit" value="Create"></p>
 </form>
 </body>
