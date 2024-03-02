@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a href="{% url 'profils:rend_glavn' %}">На главную</a>
+<ul>
+    <li><a href="{% url 'projects:CreateProject' %}?stage=1&id={{ project.id }}">1</a></li>
+    <li>>2 - вы сейчас тут</li>
+    <li><a href="create_project_2.html">3</a></li>
+    <li><a href="create_project_2.html">4</a></li>
+    <li><a href="create_project_2.html">5</a></li>
+    <li><a href="create_project_2.html">6</a></li>
+    <li><a href="create_project_2.html">7</a></li>
+
+</ul>
+{% if project.type is not None  %}
+	<p>На данный момент ваш выбор - {{ project.type }}</p>
+{% endif %} 
+<form action="{% url 'projects:CreateProject' %}?stage=2&id={{ project.id }}" method="post">
+    {% csrf_token %}
+    <p>Выберети тип системы</p>
+     <select name="type">
+    <option value="GYS">Государственная информационная система</option>
+    <option value="ISP">Информационная система пресональных данных</option>
+    <option value="KII">Объект критической информакционной инфраструктуры</option>
+  </select>
+    <p><input type="submit" value="Create"></p>
+</form>
+
+</body>
+</html>

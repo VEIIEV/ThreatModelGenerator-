@@ -30,9 +30,9 @@ class CreateProject(View):
             case '2':
                 return render(request, '../templates/projects/create_project_2.html', context={'project': project})
             case '3':
-                pass
+                return render(request, '../templates/projects/create_project_3.html', context={'project': project})
             case '4':
-                pass
+                return render(request, '../templates/projects/create_project_4.html', context={'project': project})
             case '5':
                 pass
             case '6':
@@ -45,23 +45,30 @@ class CreateProject(View):
         project_id = int(request.GET.get('id'))
         project = Projects.objects.get(id=project_id)
 
-        if (int(stage)< project.stage):
-            #todo написать менеджер для модели project, который откатывает изменения для соот стадии
+        if (int(stage) < project.stage):
+            # todo написать менеджер для модели project, который откатывает изменения для соот стадии
             ...
 
         match stage:
             case '1':
-                r_person = RPersons.objects.create(name=request.POST['rperson_name'], appointment=request.POST['appointment'],
+                r_person = RPersons.objects.create(name=request.POST['rperson_name'],
+                                                   appointment=request.POST['appointment'],
                                                    projects=project)
                 project.r_persons.add(r_person)
-                project.name_project= request.POST['name_project']
-                project.stage=(project.stage+1)
+                project.name_project = request.POST['name_project']
+                project.stage = 2
                 project.save()
                 return render(request, '../templates/projects/create_project_2.html', context={'project': project})
             case '2':
+                project.type = request.POST['type']
+                project.stage = 3
+                project.save()
                 return render(request, '../templates/projects/create_project_3.html', context={'project': project})
             case '3':
-                pass
+                project.system_lvl = request.POST['system_lvl']
+                project.stage = 4
+                project.save()
+                return render(request, '../templates/projects/create_project_4.html', context={'project': project})
             case '4':
                 pass
             case '5':
@@ -74,9 +81,9 @@ class CreateProject(View):
 
 @login_required(login_url='profils:logun_users')
 def Projects_list(request):
-    paginate_by = 4
+    paginate_by = 6
     users_project = Projects.objects.filter(user_id=request.user.id)
-    paginator = Paginator(users_project, 2)
+    paginator = Paginator(users_project, paginate_by)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     data = {
