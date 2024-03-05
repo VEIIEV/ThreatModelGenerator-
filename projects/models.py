@@ -48,7 +48,7 @@ object_impact- распарсить и спарсить
     description = models.CharField(max_length=20000)
     object_impact = models.CharField(max_length=500)
     violator = models.CharField(max_length=255)
-    capecs = models.ManyToManyField(Capecs)
+    capecs = models.ManyToManyField(Capecs,related_name='capecs')
 
 
 class ObjectOfInfluences(models.Model):
@@ -65,23 +65,6 @@ class NegativeConsequences(models.Model):
 class Projects(models.Model):
     """Модель проектов"""
     #TODO возможно необходимо добавить связь многие ко многим с бду
-
-    # class ProjectStage(models.TextChoices):
-    #     CREATED = "CR", gettext_lazy("Created")
-    #     R_APPOINTED = "RA", gettext_lazy("R Person Appointed")
-    #     SYSTEM_TYPE = "ST", gettext_lazy("Chosen System Type")
-    #     SYSTEM_LVL = "ST", gettext_lazy("Chosen System Level")
-    #     NEGATIVE_CON = "NC", gettext_lazy("Chosen Negative Consequence")
-    #     OBJECT_INF = "OI", gettext_lazy("Chosen Object Influence")
-    #     DONE = "DN", gettext_lazy("Project complete")
-    #
-    # stage = models.CharField(
-    #     max_length=2,
-    #     choices=ProjectStage,
-    #     default=ProjectStage.CREATED
-    # )
-
-
     class SystemTypes(models.TextChoices):
         GYS = "GYS", _("State Information System")
         ISPDN = "ISP", _("Personal Data Information System")
@@ -112,6 +95,35 @@ class Projects(models.Model):
     def get_absolute_url(self):
         return reverse('projects:detail_project', kwargs={'id': self.pk})
 
+    def roll_back_to_stage(self, stage: int) -> None:
+        match stage:
+            case 1:
+                self.violators.through.objects.all().delete()
+                self.object_inf.through.objects.all().delete()
+                self.negative_consequences.through.objects.all().delete()
+                self.system_lvl= None
+                self.type = None
+                self.stage=1
+                self.save()
+            case 2:
+                self.violators.through.objects.all().delete()
+                self.object_inf.through.objects.all().delete()
+                self.negative_consequences.through.objects.all().delete()
+                self.type = None
+                self.stage = 2
+                self.save()
+            case 3:
+                self.violators.through.objects.all().delete()
+                self.object_inf.through.objects.all().delete()
+                self.negative_consequences.through.objects.all().delete()
+                self.stage = 3
+                self.save()
+            case 4:
+                pass
+            case 5:
+                pass
+            case 6:
+                pass
 
 class RPersons(models.Model):
     """Ответственные за проект"""

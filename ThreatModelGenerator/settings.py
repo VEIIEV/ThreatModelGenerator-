@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 
+import paramiko
+from sshtunnel import SSHTunnelForwarder
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -56,7 +59,7 @@ ROOT_URLCONF = 'ThreatModelGenerator.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [(os.path.join(BASE_DIR, 'templates')),],
+        'DIRS': [(os.path.join(BASE_DIR, 'templates')), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,15 +84,47 @@ WSGI_APPLICATION = 'ThreatModelGenerator.wsgi.application'
 #    }
 # }
 
+# ssh_tunnel = SSHTunnelForwarder(
+#     ssh_address_or_host='178.154.201.218',  #ip
+#     ssh_private_key='C:\\Users\\world\\.ssh\\id_ed25519',
+#     ssh_password='242001veiiev',
+#     ssh_private_key_password='242001veiiev',
+#     ssh_username='kirill',
+#     remote_bind_address=('localhost', 5432),
+# )
+
+
+# ssh_private_key = 'id_ed25519'
+# ssh_private_key_password = '242001veiiev'
+#
+# ssh_tunnel = SSHTunnelForwarder(
+#     # ssh_address_or_host='178.154.201.218',  #ip
+#     ('178.154.201.218', 22),
+#     ssh_pkey=(paramiko.Ed25519Key.from_private_key_file(ssh_private_key, password=ssh_private_key_password)),
+#     ssh_username='kirill',
+#     remote_bind_address=('127.0.0.1', 5432),
+# )
+#
+# ssh_tunnel.start()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'django',
-        'USER': 'django_admin',
-        'PASSWORD': 'password',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': '1234',
         'HOST': '127.0.0.1',
-        'PORT': '5433',
-    }
+        'PORT': '5432',
+    },
+    'ssh': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',
+        'USER': 'postgres1',
+        'PASSWORD': 'postgres1',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    },
+
 }
 
 # Password validation

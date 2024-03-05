@@ -70,12 +70,18 @@ class CreateProject(View):
                 project.save()
                 return render(request, '../templates/projects/create_project_4.html', context={'project': project})
             case '4':
+                # TODO негативные последствия, представлен весь список, прокликиваются те, которые тебе нужны, внутри form
+                # через шаблон for x in y  вывевести все негативные представленные в базе, и прокликивать их через галочки
+                # снизу отдельным блоком сделать галочки, для доп условий
                 pass
             case '5':
+                # TODO аналогично негативным пос
                 pass
             case '6':
+                # TODO нарушители, 4 вида, 4 галочки соот
                 pass
             case '7':
+                # todo дело сделано, показываем итог и выгружаем док
                 pass
 
 
@@ -177,3 +183,12 @@ def read_bdus(request):
                         violator=row['Источник угрозы (характеристика и потенциал нарушителя)'])
         my_model.save()
     return HttpResponse(content="bdu recorded in db", status=200)
+
+
+def test_bd(request):
+    bdu = Bdus.objects.get(id=222)
+    capecs = bdu.capecs.all()
+    for c in capecs:
+        print(c.name)
+    print(bdu.capecs.all())
+    return HttpResponse(content=bdu.capecs.all(), status=200)
