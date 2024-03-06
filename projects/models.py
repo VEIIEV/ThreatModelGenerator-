@@ -57,8 +57,8 @@ class ObjectOfInfluences(models.Model):
 
 
 class NegativeConsequences(models.Model):
-    name = models.CharField(max_length=255)
-    type = models.CharField(max_length=255)
+    name = models.CharField(max_length=25500)
+    type = models.CharField(max_length=25500)
     objectofinfluence = models.ManyToManyField(ObjectOfInfluences)
 
 

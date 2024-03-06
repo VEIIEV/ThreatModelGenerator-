@@ -8,7 +8,7 @@ from django.views import View
 import re
 
 from profils.models import User
-from .models import Projects, Capecs, Bdus, RPersons
+from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences
 
 
 class CreateProject(View):
@@ -183,6 +183,17 @@ def read_bdus(request):
                         violator=row['Источник угрозы (характеристика и потенциал нарушителя)'])
         my_model.save()
     return HttpResponse(content="bdu recorded in db", status=200)
+
+def read_neg_pos(request):
+    data = pd.read_excel('NP_list.xlsx')
+    for index, row in data.iterrows():
+        my_model =NegativeConsequences(
+            id = row['Идентификатор'][2:],
+            name=row['Наименование'],
+            type=row['Ущерб']
+        )
+        my_model.save()
+    return HttpResponse(content="NP recorded in db", status=200)
 
 
 def test_bd(request):
