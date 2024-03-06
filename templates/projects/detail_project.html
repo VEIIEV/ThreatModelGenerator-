@@ -9,8 +9,8 @@
 <p>Тут мы видим информацию о проекте</p>
 <p>Выгрузить проект</p>
 <a href="{% url 'projects:Download' %}">Скачать</a>
-<p>{{ project.id }}</p>
-<p>{{ project.stage }}</p>
+<p> id проекта -{{ project.id }}</p>
+<p>стадния проекта - {{ project.stage }}/7</p>
 <a href="{% url 'projects:CreateProject' %}?id={{ project.id }}&stage={{ project.stage }}">редактировать</a>
 </body>
 </html>

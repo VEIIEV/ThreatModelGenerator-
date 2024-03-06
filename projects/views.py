@@ -2,7 +2,7 @@ import pandas as pd
 import xlwt
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, QueryDict
 from django.shortcuts import render
 from django.views import View
 import re
@@ -32,7 +32,10 @@ class CreateProject(View):
             case '3':
                 return render(request, '../templates/projects/create_project_3.html', context={'project': project})
             case '4':
-                return render(request, '../templates/projects/create_project_4.html', context={'project': project})
+
+                return render(request, '../templates/projects/create_project_4.html',
+                              context={'project': project,
+                                       'negative_consequences': NegativeConsequences.objects.all()})
             case '5':
                 pass
             case '6':
@@ -68,14 +71,25 @@ class CreateProject(View):
                 project.system_lvl = request.POST['system_lvl']
                 project.stage = 4
                 project.save()
-                return render(request, '../templates/projects/create_project_4.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_4.html',
+                              context={'project': project,
+                                       'negative_consequences': NegativeConsequences.objects.all()})
             case '4':
-                # TODO негативные последствия, представлен весь список, прокликиваются те, которые тебе нужны, внутри form
-                # через шаблон for x in y  вывевести все негативные представленные в базе, и прокликивать их через галочки
-                # снизу отдельным блоком сделать галочки, для доп условий
+                data = QueryDict(request.body)
+                for key in data.keys():
+                    if key == 'csrfmiddlewaretoken':
+                        continue
+                    np_id = data.get(key)
+                    neg_p = NegativeConsequences.objects.get(id=int(np_id))
+                    project.negative_consequences.add(neg_p)
+                    project.save()
+                project.stage = 5
+                return render(request, '../templates/projects/create_project_5.html', context={'project': project})
+                # TODO снизу отдельным блоком сделать галочки, для доп условий
                 pass
             case '5':
                 # TODO аналогично негативным пос
+                # TODO снизу отдельным блоком сделать галочки, для доп условий
                 pass
             case '6':
                 # TODO нарушители, 4 вида, 4 галочки соот
@@ -184,11 +198,12 @@ def read_bdus(request):
         my_model.save()
     return HttpResponse(content="bdu recorded in db", status=200)
 
+
 def read_neg_pos(request):
     data = pd.read_excel('NP_list.xlsx')
     for index, row in data.iterrows():
-        my_model =NegativeConsequences(
-            id = row['Идентификатор'][2:],
+        my_model = NegativeConsequences(
+            id=row['Идентификатор'][2:],
             name=row['Наименование'],
             type=row['Ущерб']
         )

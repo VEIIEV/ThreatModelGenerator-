@@ -14,6 +14,6 @@ urlpatterns = [
     path('projects/<int:id>/', Show_Projects, name='detail_project'),
     path('capec/', read_capec, name='read_capec'),
     path('bdu/', read_bdus, name='read_bdus'),
-    path('testdb/', test_bd, name='test_bd' ),
+    path('testdb/', test_bd, name='test_bd'),
     path('np/', read_neg_pos, name='read_neg_pos'),
 ]

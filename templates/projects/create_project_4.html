@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a href="{% url 'profils:rend_glavn' %}">На главную</a>
+<ul>
+    <li><a href="{% url 'projects:CreateProject' %}?stage=1&id={{ project.id }}">1</a></li>
+    <li>><a href="{% url 'projects:CreateProject' %}?stage=2&id={{ project.id }}">2</a></li>
+    <li><a href="{% url 'projects:CreateProject' %}?stage=3&id={{ project.id }}">3</a></li>
+    <li>4 - вы сейчас тут</li>
+    <li><a href="create_project_2.html">5</a></li>
+    <li><a href="create_project_2.html">6</a></li>
+    <li><a href="create_project_2.html">7</a></li>
+
+</ul>
+
+
+<form action="{% url 'projects:CreateProject' %}?stage=4&id={{ project.id }}" method="post">
+
+    {% csrf_token %}
+    <p>Выберите негативные последствия</p>
+
+    {% for nc in negative_consequences %}
+        <div>
+            <p>
+                <label for="{{ nc.id }}">{{ nc.name }}</label>
+                <input type="checkbox" id="{{ nc.id }}" value="{{ nc.id }}" name="{{ nc.name }}">
+            </p>
+        </div>
+    {% endfor %}
+
+
+    <p><input type="submit" value="Create"></p>
+</form>
+
+</body>
+</html>
