@@ -6,15 +6,21 @@
 </head>
 <body>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
-<ul>
-    <li><a href="{% url 'projects:CreateProject' %}?stage=1&id={{ project.id }}">1</a></li>
-    <li>><a href="{% url 'projects:CreateProject' %}?stage=2&id={{ project.id }}">2</a></li>
-    <li><a href="{% url 'projects:CreateProject' %}?stage=3&id={{ project.id }}">3</a></li>
-    <li>4 - вы сейчас тут</li>
-    <li><a href="create_project_2.html">5</a></li>
-    <li><a href="create_project_2.html">6</a></li>
-    <li><a href="create_project_2.html">7</a></li>
 
+<ul>
+    {% with '1 2 3 4 5 6 7' as list %}
+        {% for i in list.split %}
+            {% if project.stage|slugify  == i %}
+                <li>{{ i }} - актуальный этап</li>
+            {% elif request.GET.stage == i %}
+                <li>{{ i }} - вы сейчас тут</li>
+            {% elif project.stage|slugify  < i %}
+                <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
+            {% else %}
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
 </ul>
 
 
