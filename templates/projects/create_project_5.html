@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a href="{% url 'profils:rend_glavn' %}">На главную</a>
+
+<ul>
+    {% with '1 2 3 4 5 6 7' as list %}
+        {% for i in list.split %}
+            {% if request.GET.stage == i %}
+                <li>{{ i }} - вы сейчас тут</li>
+            {% elif project.stage|slugify  == i %}
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный этап</a></li>
+            {% elif project.stage|slugify  < i %}
+                <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
+            {% else %}
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
+</ul>
+
+
+<form action="{% url 'projects:CreateProject' %}?stage=5&id={{ project.id }}" method="post">
+
+    {% csrf_token %}
+    <p>выберети объекты воздействия</p>
+
+    {% for ob in objs %}
+        <div>
+            <p>
+                <label for="{{ ob.id }}">{{ ob.name }}</label>
+                <input type="checkbox" id="{{ ob.id }}" value="{{ ob.id }}" name="D_{{ ob.name }}">
+            </p>
+        </div>
+    {% endfor %}
+
+    <!-- может и не делать этого вовсе, какая-то хуйня откровенно говоря -->
+    <p>укажити дополнительные модификаторы(опционально)</p>
+    <p>
+        <label for="grid">grid system</label>
+        <input type="checkbox" id="grid" name="A_grid system">
+    </p>
+    <p>
+        <label for="virtual">virtual system</label>
+        <input type="checkbox" id="virtual" name="A_virtual system">
+    </p>
+    <p>
+        <label for="wireless">wireless system</label>
+        <input type="checkbox" id="wireless" name="A_wireless system">
+    </p>
+    <p>
+        <label for="cloud">cloud system</label>
+        <input type="checkbox" id="cloud" name="A_cloud system">
+    </p>
+
+    <p><input type="submit" value="Create"></p>
+</form>
+
+</body>
+</html>

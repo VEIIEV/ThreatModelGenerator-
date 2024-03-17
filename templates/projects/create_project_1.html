@@ -7,13 +7,14 @@
 <body>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
 
-<ul> 
+<ul>
     {% with '1 2 3 4 5 6 7' as list %}
         {% for i in list.split %}
             {% if request.GET.stage == i %}
                 <li>{{ i }} - вы сейчас тут</li>
             {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный этап</a></li>
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
+                    этап</a></li>
             {% elif project.stage|slugify  < i %}
                 <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
             {% else %}
@@ -27,13 +28,18 @@
 <form action="{% url 'projects:CreateProject' %}?stage=1&id={{ project.id }}" method="post">
     {% csrf_token %}
     <p>название проекта</p>
-    <input type="text" name="name_project" placeholder="{{ project.name }}">
+    <input type="text" name="name_project" placeholder="{{ project.name_project }}">
     <p>ответственное лицо</p>
 
     <p>имя</p>
-    <input type="text" name="rperson_name" placeholder="{{ project.r_persons.name }}">
-    <p>должность</p>
-    <input type="text" name="appointment" placeholder="{{ project.r_persons.appointment }}"/>
+    {% for rp in project.r_persons.all %}
+        {% if rp.id == 1 %}
+            <input type="text" name="rperson_name" placeholder="{{ rp.name }}">
+            <p>должность</p>
+            <input type="text" name="appointment" placeholder="{{ rp.appointment }}"/>
+        {% endif %}
+    {% endfor %}
+
     <p><input type="submit" value="Create"></p>
 </form>
 </body>

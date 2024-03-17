@@ -50,6 +50,10 @@ object_impact- распарсить и спарсить
     violator = models.CharField(max_length=255)
     capecs = models.ManyToManyField(Capecs,related_name='capecs')
 
+    is_grid = models.BooleanField(null=True)
+    is_virtual = models.BooleanField(null=True)
+    is_wireless = models.BooleanField(null=True)
+    is_cloud = models.BooleanField(null=True)
 
 class ObjectOfInfluences(models.Model):
     name = models.CharField(max_length=255)
@@ -84,6 +88,11 @@ class Projects(models.Model):
     negative_consequences = models.ManyToManyField(NegativeConsequences)
 
     object_inf = models.ManyToManyField(ObjectOfInfluences)
+
+    is_grid = models.BooleanField(null=True)
+    is_virtual = models.BooleanField(null=True)
+    is_wireless = models.BooleanField(null=True)
+    is_cloud = models.BooleanField(null=True)
 
     violators = models.ManyToManyField(Violators)
 

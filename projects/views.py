@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 import xlwt
 from django.contrib.auth.decorators import login_required
@@ -5,10 +7,9 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpRequest, QueryDict
 from django.shortcuts import render
 from django.views import View
-import re
 
 from profils.models import User
-from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences
+from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences
 
 
 class CreateProject(View):
@@ -32,19 +33,25 @@ class CreateProject(View):
             case '3':
                 return render(request, '../templates/projects/create_project_3.html', context={'project': project})
             case '4':
-
                 return render(request, '../templates/projects/create_project_4.html',
                               context={'project': project,
                                        'negative_consequences': NegativeConsequences.objects.all()})
             case '5':
-                pass
+                return render(request, '../templates/projects/create_project_5.html',
+                              context={'project': project,
+                                       'objs': ObjectOfInfluences.objects.all()})
             case '6':
                 pass
             case '7':
                 pass
 
     def post(self, request: HttpRequest):
+
         stage = request.GET.get('stage')
+        # todo разобраться с этим куском говна
+        # request_get = request.GET.copy()
+        # request_get['stage'] = int(stage) + 1
+        # request.GET = request_get
         project_id = int(request.GET.get('id'))
         project = Projects.objects.get(id=project_id)
 
@@ -82,15 +89,29 @@ class CreateProject(View):
                     np_id = data.get(key)
                     neg_p = NegativeConsequences.objects.get(id=int(np_id))
                     project.negative_consequences.add(neg_p)
-                    project.save()
+                    # project.save()
                 project.stage = 5
-                return render(request, '../templates/projects/create_project_5.html', context={'project': project})
-                # TODO снизу отдельным блоком сделать галочки, для доп условий
+                project.save()
+                return render(request, '../templates/projects/create_project_5.html', context={'project': project,
+                                                                                               'objs': ObjectOfInfluences.objects.all()})
                 pass
             case '5':
-                # TODO аналогично негативным пос
-                # TODO снизу отдельным блоком сделать галочки, для доп условий
-                pass
+                # TODO должно быть выбрано хотя бы 1 обязательное поле
+                data = QueryDict(request.body)
+                print(data)
+                for key in data.keys():
+                    if re.search("D_", key) is not None:
+                        obj_id = data.get(key)
+                        obj = ObjectOfInfluences.objects.get(id=int(obj_id))
+                        project.object_inf.add(obj)
+                project.is_grid = True if ("A_grid system" in data) else False
+                project.is_virtual = True if ("A_virtual system" in data) else False
+                project.is_wireless = True if ("A_wireless system" in data) else False
+                project.is_cloud = True if ("A_cloud system" in data) else False
+                project.save()
+
+                return render(request, '../templates/projects/create_project_6.html', context={'project': project})
+
             case '6':
                 # TODO нарушители, 4 вида, 4 галочки соот
                 pass
@@ -152,30 +173,7 @@ def Download_Project(request):
     return response
 
 
-# Читаем данные из Excel файла
-
-# data = pd.read_excel('vygruzka_kapeka.xlsx')
-# # Проходим по каждой строке данных и сохраняем их в БД Django
-# for index, row in data.iterrows():
-#     child_id = row['Related Attack Patterns']
-#     for i in re.finditer(r'ChildOf:CAPEC ID:(\d+)', child_id):
-#         id = int(i.group(1))
-#         my_model = Capec(id=row['ID'], name=row['Name'], description=row['Description'],
-#                          typical_severity=row['Typical Severity'], execution_flow=row['Execution Flow'],
-#                          child_id=id,consequences=row['Consequences'])
-#         my_model.save()
-
-# id = models.IntegerField(primary_key=True)
-# name = models.CharField(max_length=255)
-# description = models.CharField(max_length=255)
-# typical_severity = models.CharField(max_length=20)
-# execution_flow = models.CharField(max_length=255)
-# parent_id = models.IntegerField(null=True, blank=True, default=None)
-# child_id = models.IntegerField(null=True, blank=True, default=None)
-# consequences = models.CharField(max_length=255)
-
-
-# todo вынести в апи
+# todo вынести в отдельное  апи приложение
 def read_capec(request):
     data = pd.read_excel('vygruzka_kapeka.xlsx')
     for index, row in data.iterrows():
