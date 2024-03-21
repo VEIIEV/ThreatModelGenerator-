@@ -8,21 +8,24 @@ from profils.models import User
 
 class ViolatorLvls(models.Model):
     lvl = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=2550, blank=True, null=True)
     description = models.TextField(max_length=3000)
 
 
 class Violators(models.Model):
     """Нарушителей – тип нарушителя, уровень возможности (В1 – В4),
     type - вид (внутренний, внешний, оба) = (1, 2, 3)
-    potential - потенциал (низкий, средний, высокий) = (1,2,3,4)
+    potential - потенциал (низкий, средний, высокий) = (1,2,3) ( )
     Возможные цели (мотивация) реализации угроз безопасности информации,
     (см методику от 05.02.2021 приложение 8,9)"""
     name = models.CharField(max_length=255)
-    lvl = models.OneToOneField(ViolatorLvls, on_delete=models.PROTECT)
+    lvl = models.ForeignKey(ViolatorLvls, on_delete=models.PROTECT, related_name='violators')
     type = models.IntegerField()
     potential = models.IntegerField()
     motives = models.CharField(max_length=3000, blank=True, null=True)
     # TODO определиться нужна ли свзяь нарушителей с бду, пока не уверен
+    # TODO заполнить поле мотивов
+
 
 
 class Capecs(models.Model):

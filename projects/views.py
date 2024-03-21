@@ -9,8 +9,10 @@ from django.shortcuts import render
 from django.views import View
 
 from profils.models import User
-from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences
+from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
 
+
+#todo накатить фронт,
 
 class CreateProject(View):
 
@@ -41,9 +43,10 @@ class CreateProject(View):
                               context={'project': project,
                                        'objs': ObjectOfInfluences.objects.all()})
             case '6':
-                pass
+                return render(request, '../templates/projects/create_project_6.html', context={'project': project,
+                                                                                               'violators': ViolatorLvls.objects.all()})
             case '7':
-                pass
+                return render(request, '../templates/projects/create_project_7.html', context={'project': project})
 
     def post(self, request: HttpRequest):
 
@@ -56,7 +59,7 @@ class CreateProject(View):
         project = Projects.objects.get(id=project_id)
 
         if (int(stage) < project.stage):
-            # todo написать менеджер для модели project, который откатывает изменения для соот стадии
+            # todo написать функцию для модели project, который откатывает изменения для соот стадии
             ...
 
         match stage:
@@ -108,13 +111,25 @@ class CreateProject(View):
                 project.is_virtual = True if ("A_virtual system" in data) else False
                 project.is_wireless = True if ("A_wireless system" in data) else False
                 project.is_cloud = True if ("A_cloud system" in data) else False
+                project.stage = 6
                 project.save()
 
-                return render(request, '../templates/projects/create_project_6.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_6.html', context={'project': project,
+                                                                                               'violators': ViolatorLvls.objects.all()})
 
             case '6':
-                # TODO нарушители, 4 вида, 4 галочки соот
-                pass
+                data = QueryDict(request.body)
+                print(data)
+                for key in data.keys():
+                    if re.search("D_", key) is not None:
+                        vio_lvl = data.get(key)
+                        violators = ViolatorLvls.objects.get(lvl=vio_lvl).violators.all()
+                        for violator in violators:
+                            project.violators.add(violator)
+                project.stage = 7
+                project.save()
+
+                return render(request, '../templates/projects/create_project_7.html', context={'project': project})
             case '7':
                 # todo дело сделано, показываем итог и выгружаем док
                 pass
