@@ -29,17 +29,21 @@
     {% csrf_token %}
     <p>название проекта</p>
     <input type="text" name="name_project" placeholder="{{ project.name_project }}">
-    <p>ответственное лицо</p>
 
-    <p>имя</p>
+    <!-- 
     {% for rp in project.r_persons.all %}
         {% if rp.id == 1 %}
             <input type="text" name="rperson_name" placeholder="{{ rp.name }}">
             <p>должность</p>
             <input type="text" name="appointment" placeholder="{{ rp.appointment }}"/>
         {% endif %}
-    {% endfor %}
-
+          {% endfor %}
+    -->
+    <p>ответственное лицо</p>
+    <p>имя</p>
+    <input type="text" name="rperson_name" placeholder="{{ rp.name }}">
+    <p>должность</p>
+    <input type="text" name="appointment" placeholder="{{ rp.appointment }}"/>
     <p><input type="submit" value="Create"></p>
 </form>
 </body>
