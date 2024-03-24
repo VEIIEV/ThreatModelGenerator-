@@ -10,9 +10,10 @@ from django.views import View
 
 from profils.models import User
 from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
+from .utils import create_word
 
 
-#todo накатить фронт,
+# todo накатить фронт,
 
 class CreateProject(View):
 
@@ -46,6 +47,9 @@ class CreateProject(View):
                 return render(request, '../templates/projects/create_project_6.html', context={'project': project,
                                                                                                'violators': ViolatorLvls.objects.all()})
             case '7':
+
+                #todo добавить кнопку для выгрузки каждой таблице отдельно как excel
+                #todo добавить кнопку для выгрузки всего ворд документа
                 return render(request, '../templates/projects/create_project_7.html', context={'project': project})
 
     def post(self, request: HttpRequest):
@@ -63,6 +67,8 @@ class CreateProject(View):
             ...
 
         match stage:
+            #todo в темплейте реализовать возможность создания нескольких ответственных лиц
+            #todo не помечается не выбранные результаты
             case '1':
                 r_person = RPersons.objects.create(name=request.POST['rperson_name'],
                                                    appointment=request.POST['appointment'],
@@ -132,6 +138,8 @@ class CreateProject(View):
                 return render(request, '../templates/projects/create_project_7.html', context={'project': project})
             case '7':
                 # todo дело сделано, показываем итог и выгружаем док
+                doc = create_word(project)
+
                 pass
 
 
