@@ -220,7 +220,7 @@
 
                                     {% for contact in page_obj %}
                                         <tfoot>
-                                        <td><p>{{ contact }}</p></td>
+                                        <td><p>{{ contact.name_project }}</p></td>
                                         <td><a href="{{ contact.get_absolute_url }}">Подробнее</a></td>
                                         </tfoot>
                                     {% endfor %}

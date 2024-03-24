@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import Projects_list, CreateProject, Show_Projects, Download_Project, read_capec, read_bdus, test_bd, \
-    read_neg_pos
+    read_neg_pos, test
 
 app_name = 'projects'
 
@@ -13,4 +13,5 @@ urlpatterns = [
     path('bdu/', read_bdus, name='read_bdus'),
     path('testdb/', test_bd, name='test_bd'),
     path('np/', read_neg_pos, name='read_neg_pos'),
+    path('test/', test, name='test')
 ]
