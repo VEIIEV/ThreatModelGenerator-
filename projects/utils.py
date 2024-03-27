@@ -36,16 +36,21 @@ def generate_obj_inf_table(project: Projects):
         for obj in objs:
             if obj in project.object_inf.all():
                 kind = KindOfOfInfluences.objects.get(object_of_inf=obj, neg_cons=neg_con).kind_of_inf
-                if neg_con.name in table:
-                    table[neg_con.name].update({obj.name: kind})
+                if f'{neg_con.name} ({lvl})' in table:
+                    temp = table[f'{neg_con.name} ({lvl})']
+                    table.update({f'{neg_con.name} ({lvl})': temp | {obj.name: kind}})
                 else:
                     table[f'{neg_con.name} ({lvl})'] = {obj.name: kind}
+
                 # todo создать excel файл и вернуть его
     pprint(table)
     return table
 
     def generate_violators_type_table(project: Projects):
         # вид нарушителя(название), тип нарушителя (внеш, внут), Возможные цели (мотивация) реализации угроз безопасности информации
+        table = [
+            ['Вид нарушителя', 'Тип нарушителя', 'Возможные цели (мотивация) реализации угроз безопасности информации']]
+
         # todo создать excel файл и вернуть его
         pass
 
