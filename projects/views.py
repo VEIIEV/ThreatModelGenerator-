@@ -10,15 +10,10 @@ from django.views import View
 
 from profils.models import User
 from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
-from .utils import create_word, genereate_neg_con_table
+from .utils import create_word, genereate_neg_con_table, generate_obj_inf_table
 
 
 # todo накатить фронт,
-
-def test(request):
-    project = Projects.objects.get(name_project='хуй')
-    table = genereate_neg_con_table(project)
-    return HttpResponse(status=200, content=table)
 
 
 class CreateProject(View):
@@ -245,3 +240,9 @@ def test_bd(request):
         print(c.name)
     print(bdu.capecs.all())
     return HttpResponse(content=bdu.capecs.all(), status=200)
+
+
+def test(request):
+    project = Projects.objects.get(name_project='хуй')
+    table = generate_obj_inf_table(project)
+    return HttpResponse(status=200, content=table)
