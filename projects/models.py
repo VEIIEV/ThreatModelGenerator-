@@ -66,8 +66,14 @@ class ObjectOfInfluences(models.Model):
 class NegativeConsequences(models.Model):
     name = models.CharField(max_length=25500)
     type = models.CharField(max_length=25500)
-    objectofinfluence = models.ManyToManyField(ObjectOfInfluences)
 
+    object_of_influence = models.ManyToManyField(ObjectOfInfluences, through='KindOfOfInfluences')
+
+
+class KindOfOfInfluences(models.Model):
+    object_of_inf = models.ForeignKey(ObjectOfInfluences, on_delete=models.CASCADE)
+    neg_cons = models.ForeignKey(NegativeConsequences, on_delete=models.CASCADE)
+    kind_of_inf = models.CharField(max_length=25500, null=True, blank=True)
 
 class Projects(models.Model):
     """Модель проектов"""
