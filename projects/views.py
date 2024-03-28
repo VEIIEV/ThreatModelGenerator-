@@ -10,7 +10,8 @@ from django.views import View
 
 from profils.models import User
 from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
-from .utils import create_word, genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table
+from .utils import create_word, genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table, \
+    generate_violators_potential_table
 
 
 # todo накатить фронт,
@@ -244,5 +245,5 @@ def test_bd(request):
 
 def test(request):
     project = Projects.objects.get(name_project='хуй')
-    table = generate_violators_type_table(project)
+    table = generate_violators_potential_table(project)
     return HttpResponse(status=200, content=table)

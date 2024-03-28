@@ -9,7 +9,7 @@ def create_word(project: Projects):
 
 def genereate_neg_con_table(project: Projects):
     table = {'column_name': ['Вид риска (ущерба)', 'Возможные негативные последствия']}
-    neg_cons = project.negative_consequences.all()
+    neg_cons = project.negative_consequences.all().order_by('type')
     for neg_con in neg_cons:
         if neg_con.type in table:
             table[neg_con.type].append(neg_con.name)
@@ -75,8 +75,30 @@ def generate_violators_type_table(project: Projects):
 
 def generate_violators_potential_table(project: Projects):
     # Уровень возможностей, вид нарушителя(название), потенциал нарушителя
+    table = {'column_name':
+                 ['Уровень возможностей',
+                  'Вид нарушителя',
+                  'Потенциал нарушителя']
+             }
+    vlvls = ViolatorLvls.objects.all().order_by('lvl')
+    for lvl in vlvls:
+        violators = lvl.violators.all()
+        for violator in violators:
+            if violator.potential == 1:
+                potential = 'низкий'
+            elif violator.type == 2:
+                potential = 'средний'
+            else:
+                potential = 'высокий'
+            if violator in project.violators.all():
+                if lvl.name in table:
+                    temp = table[lvl.name]
+                    table.update({lvl.name: temp | {violator.name: potential}})
+                else:
+                    table[lvl.name] = {violator.name: potential}
     # todo создать excel файл и вернуть его
-    pass
+    pprint(table)
+    return table
 
 
 def generate_bdu_table(project: Projects):
