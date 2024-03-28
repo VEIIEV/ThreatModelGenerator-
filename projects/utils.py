@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from projects.models import Projects, KindOfOfInfluences
+from projects.models import Projects, KindOfOfInfluences, ViolatorLvls
 
 
 def create_word(project: Projects):
@@ -22,7 +22,7 @@ def genereate_neg_con_table(project: Projects):
 
 
 def generate_obj_inf_table(project: Projects):
-    # Негативные последствия (нег поз (лвл риска)), объект воздействия, вид воздействия (возможно придётся оставлять пустым)
+    # todo при составление таблицы, если не выбран объект воздействия в тесте, указывать не актуальность
     table = {'column_name': ['Негативные последствия', 'Объекты воздействия', 'Виды воздействия']}
     neg_cons = project.negative_consequences.all()
     for neg_con in neg_cons:
@@ -46,20 +46,40 @@ def generate_obj_inf_table(project: Projects):
     pprint(table)
     return table
 
-    def generate_violators_type_table(project: Projects):
-        # вид нарушителя(название), тип нарушителя (внеш, внут), Возможные цели (мотивация) реализации угроз безопасности информации
-        table = [
-            ['Вид нарушителя', 'Тип нарушителя', 'Возможные цели (мотивация) реализации угроз безопасности информации']]
 
-        # todo создать excel файл и вернуть его
-        pass
+def generate_violators_type_table(project: Projects):
+    # вид нарушителя(название), тип нарушителя (внеш, внут), Возможные цели (мотивация) реализации угроз безопасности информации
+    table = {'column_name':
+                 ['Вид нарушителя',
+                  'Тип нарушителя',
+                  'Возможные цели (мотивация) реализации угроз безопасности информации']
+             }
+    violators = project.violators.all()
+    for violator in violators:
+        if violator.type == 1:
+            types = ['внутренний']
+        elif violator.type == 2:
+            types = ['внешний']
+        else:
+            types = ['внутренний', 'внешний']
+        for type in types:
+            if violator.name in table:
+                temp = table[violator.name]
+                table.update({violator.name: temp | {type: violator.motives}})
+            else:
+                table[violator.name] = {type: violator.motives}
+    # todo создать excel файл и вернуть его
+    pprint(table)
+    return table
 
-    def generate_violators_potential_table(project: Projects):
-        # Уровень возможностей, вид нарушителя(название), потенциал нарушителя
-        # todo создать excel файл и вернуть его
-        pass
 
-    def generate_bdu_table(project: Projects):
-        # номер угрозы, название, уязвимость(опционально), вектор капек, нег пос, объект воздействия, нарушитель, сценарий реализации
-        # todo создать excel файл и вернуть его
-        pass
+def generate_violators_potential_table(project: Projects):
+    # Уровень возможностей, вид нарушителя(название), потенциал нарушителя
+    # todo создать excel файл и вернуть его
+    pass
+
+
+def generate_bdu_table(project: Projects):
+    # номер угрозы, название, уязвимость(опционально), вектор капек, нег пос, объект воздействия, нарушитель, сценарий реализации
+    # todo создать excel файл и вернуть его
+    pass
