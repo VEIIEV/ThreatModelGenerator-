@@ -1,5 +1,8 @@
 import re
-
+from datetime import date
+from django.http import FileResponse
+from django.shortcuts import render
+import os
 import pandas as pd
 import xlwt
 from django.contrib.auth.decorators import login_required
@@ -7,12 +10,12 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpRequest, QueryDict
 from django.shortcuts import render
 from django.views import View
-
+from docx import Document
 from profils.models import User
 from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
 from .utils import create_word, genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table, \
     generate_violators_potential_table, form_bdus_list_for
-
+from .utils import genereate_neg_con_table
 
 # todo накатить фронт,
 
@@ -167,38 +170,53 @@ def Show_Projects(request, id):
     return render(request, '../templates/projects/detail_project.html', data)
 
 
-def Download_Project(request):
-    response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="users.xls"'
+def Download_Project(request: HttpRequest):
+    project = Projects.objects.get(id=request.GET.get('id'))
+    neg_pos = genereate_neg_con_table(project)
+    doc = Document('shablon_modeli_ugroz.docx')
 
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Users Data')  # this will make a sheet named Users Data
+    for paragraph in doc.paragraphs:
+        if 'Модель угроз' in paragraph.text:
+            paragraph.text = paragraph.text.replace('Модель угроз', 'Тест замены2')
+    #автозаполнения даты
+    table = doc.tables[0]
+    current_date = str(date.today())
+    table.cell(0, 1).text = current_date
+    table2 = doc.tables[1]
 
-    # Sheet header, first row
-    row_num = 0
+    #заполнение таблицы нег.последствия
+    for key in neg_pos:
+        for elems in neg_pos[key]: #тут мы перебираем список
+            new_row = table2.add_row().cells
+            new_row[0].text = key
+            new_row[1].text = elems
 
-    font_style = xlwt.XFStyle()
-    font_style.font.bold = True
+    #удаляю повтор.значения в таблице
+    row_count = len(table2.rows)
+    col_count = len(table2.columns)
+    listok = []
+    for row in range(row_count):
+        for col in range(col_count):
+            if table2.cell(row, col).text in listok:
+                table2.cell(row, col).text = ""
+            else:
+                listok.append((table2.cell(row, col).text))
+                print(listok)
 
-    columns = ['Username', 'First Name', 'Last Name', 'Email Address', ]
+    #скрещиваю пустые ячейки с пред идущимиЫ
+    for row in range(row_count):
+        if table2.cell(row, 0).text == '':
+            table2.cell(row-1, 0).merge(table2.cell(row, 0))
 
-    for col_num in range(len(columns)):
-        ws.write(row_num, col_num, columns[col_num], font_style)  # at 0 row 0 column
-
-    # Sheet body, remaining rows
-    font_style = xlwt.XFStyle()
-
-    rows = User.objects.all().values_list('username', 'first_name', 'last_name', 'email')
-    for row in rows:
-        row_num += 1
-        for col_num in range(len(row)):
-            ws.write(row_num, col_num, row[col_num], font_style)
-
-    wb.save(response)
+    doc.save('новое_имя_файла.docx')
+    word_file_path = 'новое_имя_файла.docx'
+    response = FileResponse(open(word_file_path, 'rb'))
+    response['Content-Disposition'] = 'attachment; filename="shablon_modeli_ugroz.docx"'
     return response
 
 
-# todo вынести в отдельное  апи приложение
+
+#todo вынести в отдельное  апи приложение
 def read_capec(request):
     data = pd.read_excel('vygruzka_kapeka.xlsx')
     for index, row in data.iterrows():

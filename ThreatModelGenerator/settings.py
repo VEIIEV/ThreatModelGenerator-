@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
+
 from pathlib import Path
 
 import paramiko
@@ -110,20 +111,20 @@ WSGI_APPLICATION = 'ThreatModelGenerator.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
+        'NAME': 'django',
         'USER': 'postgres',
-        'PASSWORD': '1234',
+        'PASSWORD': '123',
         'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'PORT': '5433',
     },
-    'ssh': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres1',
-        'PASSWORD': 'postgres1',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    },
+    #'ssh': {
+     #   'ENGINE': 'django.db.backends.postgresql_psycopg2',
+      #  'NAME': 'postgres',
+      #  'USER': 'postgres1',
+      #  'PASSWORD': 'postgres1',
+        #'HOST': '127.0.0.1',
+       # 'PORT': '5432',
+   # },
 
 }
 
@@ -150,8 +151,17 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.yandex.ru"
+EMAIL_PORT = 465
+EMAIL_HOST_USER = "daniil.masychev@yandex.ru"
+EMAIL_HOST_PASSWORD = "rjlgkxyvmetcglgm"
+EMAIL_USE_SSL = True
 
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST = EMAIL_HOST_USER
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 

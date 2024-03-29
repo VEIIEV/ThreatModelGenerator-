@@ -8,7 +8,7 @@ def create_word(project: Projects):
 
 
 def genereate_neg_con_table(project: Projects):
-    table = {'column_name': ['Вид риска (ущерба)', 'Возможные негативные последствия']}
+    table = {}
     neg_cons = project.negative_consequences.all().order_by('type')
     for neg_con in neg_cons:
         if neg_con.type in table:
