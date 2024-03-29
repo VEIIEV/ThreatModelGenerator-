@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from projects.models import Projects, KindOfOfInfluences, ViolatorLvls
+from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus
 
 
 def create_word(project: Projects):
@@ -102,6 +102,36 @@ def generate_violators_potential_table(project: Projects):
 
 
 def generate_bdu_table(project: Projects):
+    '''
+    эта таблица не уместится в обычном варианте ворда,
+    лист нужно будет развернуть горизонтально что бы она поместилась хоть как-то
+    и придётся уменьшить шрифт для неё
+    :param project:
+    :return:
+    '''
     # номер угрозы, название, уязвимость(опционально), вектор капек, нег пос, объект воздействия, нарушитель, сценарий реализации
+    table = {'column_name':
+                 ['Номер угрозы',
+                  'Название',
+                  'Уязвимость',  # поле будет пустое
+                  'Вектор Капек',
+                  'Негативное последствие',
+                  'Объект воздействия',
+                  'ТН',
+                  'Сценарий реализации',  # поле будет пустое
+                  ]
+             }
+    # bdus = project.bdus.all()
+
     # todo создать excel файл и вернуть его
+
     pass
+
+
+def form_bdus_list_for(project: Projects):
+    # функция которая подвязывает к проекту актуальные бдухи
+
+    bdu = Bdus.objects.all()
+    bdu = bdu.filter(object_impact__in=project.object_inf.values_list('name', flat=True))
+    pprint(bdu)
+    return bdu

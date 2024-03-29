@@ -24,8 +24,6 @@ class Violators(models.Model):
     potential = models.IntegerField()
     motives = models.CharField(max_length=3000, blank=True, null=True)
     # TODO определиться нужна ли свзяь нарушителей с бду, пока не уверен
-    # TODO заполнить поле мотивов
-
 
 
 class Capecs(models.Model):
@@ -51,12 +49,13 @@ object_impact- распарсить и спарсить
     description = models.CharField(max_length=20000)
     object_impact = models.CharField(max_length=500)
     violator = models.CharField(max_length=255)
-    capecs = models.ManyToManyField(Capecs,related_name='capecs')
+    capecs = models.ManyToManyField(Capecs, related_name='capecs')
 
     is_grid = models.BooleanField(null=True)
     is_virtual = models.BooleanField(null=True)
     is_wireless = models.BooleanField(null=True)
     is_cloud = models.BooleanField(null=True)
+
 
 class ObjectOfInfluences(models.Model):
     name = models.CharField(max_length=255)
@@ -75,9 +74,11 @@ class KindOfOfInfluences(models.Model):
     neg_cons = models.ForeignKey(NegativeConsequences, on_delete=models.CASCADE)
     kind_of_inf = models.CharField(max_length=25500, null=True, blank=True)
 
+
 class Projects(models.Model):
     """Модель проектов"""
-    #TODO возможно необходимо добавить связь многие ко многим с бду
+
+    # TODO возможно необходимо добавить связь многие ко многим с бду
     class SystemTypes(models.TextChoices):
         GYS = "GYS", _("State Information System")
         ISPDN = "ISP", _("Personal Data Information System")
@@ -119,9 +120,9 @@ class Projects(models.Model):
                 self.violators.through.objects.all().delete()
                 self.object_inf.through.objects.all().delete()
                 self.negative_consequences.through.objects.all().delete()
-                self.system_lvl= None
+                self.system_lvl = None
                 self.type = None
-                self.stage=1
+                self.stage = 1
                 self.save()
             case 2:
                 self.violators.through.objects.all().delete()
@@ -143,10 +144,9 @@ class Projects(models.Model):
             case 6:
                 pass
 
+
 class RPersons(models.Model):
     """Ответственные за проект"""
     name = models.CharField(max_length=255)
     appointment = models.CharField(max_length=255)
     projects = models.ForeignKey(Projects, on_delete=models.PROTECT, null=True, related_name='r_persons')
-
-
