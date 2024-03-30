@@ -1,6 +1,8 @@
 from pprint import pprint
 
-from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus
+from django.db.models import Q, QuerySet
+
+from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus, ObjectOfInfluences
 
 
 def create_word(project: Projects):
@@ -121,7 +123,8 @@ def generate_bdu_table(project: Projects):
                   'Сценарий реализации',  # поле будет пустое
                   ]
              }
-    # bdus = project.bdus.all()
+
+    bdus = form_bdus_list_for(project)
 
     # todo создать excel файл и вернуть его
 
@@ -130,8 +133,25 @@ def generate_bdu_table(project: Projects):
 
 def form_bdus_list_for(project: Projects):
     # функция которая подвязывает к проекту актуальные бдухи
+    project = Projects.objects.get(id = 3)
+    # фильтрация по объектам
+    objects = ObjectOfInfluences.objects.filter(name__in=project.object_inf.values_list('name', flat=True))
+    bdu = Bdus.objects.none()
+    for object in objects:
+        a = object.bdus.all()
+        bdu = bdu | a
+    # при фильтрации потегам селект none or true/false
+    bdu = bdu.distinct()
+    bdu = bdu.filter(Q(is_wireless=project.is_wireless) | Q(is_wireless=None))
+    bdu = bdu.filter(Q(is_grid=project.is_grid) | Q(is_grid=None))
+    bdu = bdu.filter(Q(is_virtual=project.is_virtual) | Q(is_virtual=None))
+    bdu = bdu.filter(Q(is_cloud=project.is_cloud) | Q(is_cloud=None)).order_by('id')
 
-    bdu = Bdus.objects.all()
-    bdu = bdu.filter(object_impact__in=project.object_inf.values_list('name', flat=True))
+    # фильтрация по нарушителям
+    violators = set()
+    for violator in project.violators.all():
+        violators.add(violator.lvl.name)
+    bdu = bdu.filter(violator__in=violators)
+
     pprint(bdu)
     return bdu

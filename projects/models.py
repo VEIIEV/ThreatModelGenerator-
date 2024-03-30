@@ -59,8 +59,7 @@ object_impact- распарсить и спарсить
 
 class ObjectOfInfluences(models.Model):
     name = models.CharField(max_length=255)
-    bdu = models.ManyToManyField(Bdus)
-
+    bdus = models.ManyToManyField(Bdus, related_name='bdus')
 
 class NegativeConsequences(models.Model):
     name = models.CharField(max_length=25500)
@@ -150,3 +149,5 @@ class RPersons(models.Model):
     name = models.CharField(max_length=255)
     appointment = models.CharField(max_length=255)
     projects = models.ForeignKey(Projects, on_delete=models.PROTECT, null=True, related_name='r_persons')
+
+
