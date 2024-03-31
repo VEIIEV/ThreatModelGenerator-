@@ -1,8 +1,9 @@
+import re
 from pprint import pprint
 
 from django.db.models import Q, QuerySet
 
-from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus, ObjectOfInfluences
+from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus, ObjectOfInfluences, Capecs
 
 
 def create_word(project: Projects):
@@ -123,17 +124,72 @@ def generate_bdu_table(project: Projects):
                   'Сценарий реализации',  # поле будет пустое
                   ]
              }
+    correct_obj_list = project.object_inf.all()
 
-    bdus = form_bdus_list_for(project)
+    bdus: QuerySet[Bdus] = form_bdus_list_for(project).order_by('id')
+    # Bdus.objects.all()
+    bdus.all()
+    for bdu in bdus:
+        capecs: QuerySet[Capecs] = bdu.capecs.all()
+        for capec in capecs:
+            number = f"УБИ.{bdu.id}"
+
+            # формирование цепочки капек от родителя до текущего
+            cpc = form_capec_vector_for(capec)
+
+            # нег взять дискрипшион  обрезать строку "Угроза заключается в возможности"
+            # включительно убрать _x000D и всё что после
+            neg_con = bdu.description.replace("Угроза заключается в возможности", '')
+            neg_con = neg_con.replace(r'_x000D*', '')
+            neg_con = re.sub('(_x000D).*', '', neg_con, re.DOTALL).split('\n', 1)[0]
+
+            vulnerability = 'ручное заполнение'
+            obj_of_infs = bdu.bdus.all()
+            violator = bdu.violator
+            scenario = 'сценарий реализации - функция в разработке'
+            violator_dict = {violator: scenario}
+            neg_con_dict = {}
+            for obj_of_inf in obj_of_infs:
+                if obj_of_inf in correct_obj_list:
+                    obj_of_inf = obj_of_inf.name
+                else:
+                    obj_of_inf = 'нет актуальных объектов'
+
+                if neg_con in neg_con_dict:
+                    temp = neg_con_dict[neg_con]
+                    neg_con_dict.update({neg_con: temp | {obj_of_inf: violator_dict}})
+                else:
+                    neg_con_dict[neg_con] = {obj_of_inf: violator_dict}
+            vulnerability_dict = {vulnerability: neg_con_dict}
+            cpc_dict = {cpc: vulnerability_dict}
+            if number in table:
+                temp = table[number]
+                table.update({number: temp | {bdu.name: cpc_dict}})
+            else:
+                table[number] = {bdu.name: cpc_dict}
 
     # todo создать excel файл и вернуть его
 
-    pass
+    print(table)
+    return table
 
 
-def form_bdus_list_for(project: Projects):
+def form_capec_vector_for(capec: Capecs) -> str:
+    cpc: list[str] = []
+    while True:
+        cpc.append(f'CAPEC-{capec.id}: {capec.name}')
+        # todo должно быть is None, но база данных хранит не все капеки, поэтому алгоритм кидает ошибки
+        if (capec.parent_id is not None):
+            break
+        capec = Capecs.objects.get(id=capec.parent_id)
+
+    result = '\n'.join(cpc)
+    return result
+
+
+def form_bdus_list_for(project: Projects) -> QuerySet[Bdus]:
     # функция которая подвязывает к проекту актуальные бдухи
-    project = Projects.objects.get(id = 3)
+    project = Projects.objects.get(id=3)
     # фильтрация по объектам
     objects = ObjectOfInfluences.objects.filter(name__in=project.object_inf.values_list('name', flat=True))
     bdu = Bdus.objects.none()
@@ -153,5 +209,4 @@ def form_bdus_list_for(project: Projects):
         violators.add(violator.lvl.name)
     bdu = bdu.filter(violator__in=violators)
 
-    pprint(bdu)
     return bdu
