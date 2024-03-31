@@ -65,8 +65,8 @@ class CreateProject(View):
         project = Projects.objects.get(id=project_id)
 
         if (int(stage) < project.stage):
-            # todo написать функцию для модели project, который откатывает изменения для соот стадии
-            ...
+            # todo протестировать функцию для модели project, который откатывает изменения для соот стадии
+            project.roll_back_to_stage(stage)
 
         match stage:
             # todo в темплейте реализовать возможность создания нескольких ответственных лиц

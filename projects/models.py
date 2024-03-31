@@ -114,34 +114,43 @@ class Projects(models.Model):
         return reverse('projects:detail_project', kwargs={'id': self.pk})
 
     def roll_back_to_stage(self, stage: int) -> None:
-        match stage:
+        match int(stage):
             case 1:
-                self.violators.through.objects.all().delete()
-                self.object_inf.through.objects.all().delete()
-                self.negative_consequences.through.objects.all().delete()
+                self.violators.clear()
+                self.object_inf.clear()
+                self.negative_consequences.clear()
                 self.system_lvl = None
                 self.type = None
                 self.stage = 1
                 self.save()
             case 2:
-                self.violators.through.objects.all().delete()
-                self.object_inf.through.objects.all().delete()
-                self.negative_consequences.through.objects.all().delete()
-                self.type = None
+                self.violators.clear()
+                self.object_inf.clear()
+                self.negative_consequences.clear()
+                self.system_lvl = None
                 self.stage = 2
                 self.save()
             case 3:
-                self.violators.through.objects.all().delete()
-                self.object_inf.through.objects.all().delete()
-                self.negative_consequences.through.objects.all().delete()
+                self.violators.clear()
+                self.object_inf.clear()
+                self.negative_consequences.clear()
                 self.stage = 3
                 self.save()
             case 4:
-                pass
+                self.violators.clear()
+                self.object_inf.clear()
+                self.negative_consequences.clear()
+                self.stage = 4
+                self.save()
             case 5:
-                pass
+                self.violators.clear()
+                self.object_inf.clear()
+                self.stage = 5
+                self.save()
             case 6:
-                pass
+                self.violators.clear()
+                self.stage = 6
+                self.save()
 
 
 class RPersons(models.Model):
