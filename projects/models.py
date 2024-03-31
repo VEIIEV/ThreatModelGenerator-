@@ -49,7 +49,7 @@ object_impact- распарсить и спарсить
     description = models.CharField(max_length=20000)
     object_impact = models.CharField(max_length=500)
     violator = models.CharField(max_length=255)
-    capecs = models.ManyToManyField(Capecs, related_name='capecs')
+    capecs = models.ManyToManyField(Capecs, related_name='capecs') # кирилл ты ебло
 
     is_grid = models.BooleanField(null=True)
     is_virtual = models.BooleanField(null=True)
@@ -59,7 +59,7 @@ object_impact- распарсить и спарсить
 
 class ObjectOfInfluences(models.Model):
     name = models.CharField(max_length=255)
-    bdus = models.ManyToManyField(Bdus, related_name='bdus')
+    bdus = models.ManyToManyField(Bdus, related_name='bdus') # кирилл ты ебло
 
 class NegativeConsequences(models.Model):
     name = models.CharField(max_length=25500)
