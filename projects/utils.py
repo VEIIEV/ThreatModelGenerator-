@@ -204,9 +204,11 @@ def form_bdus_list_for(project: Projects) -> QuerySet[Bdus]:
     bdu = bdu.filter(Q(is_cloud=project.is_cloud) | Q(is_cloud=None)).order_by('id')
 
     # фильтрация по нарушителям
-    violators = set()
-    for violator in project.violators.all():
-        violators.add(violator.lvl.name)
+    # todo я переделал функцию, возможно она сломалась, нужно затестить
+    violators = project.get_violator_lvl_names()
     bdu = bdu.filter(violator__in=violators)
 
     return bdu
+
+
+

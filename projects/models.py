@@ -113,6 +113,12 @@ class Projects(models.Model):
     def get_absolute_url(self):
         return reverse('projects:detail_project', kwargs={'id': self.pk})
 
+    def get_violator_lvl_names(self):
+        violators = set()
+        for violator in self.violators.all():
+            violators.add(violator.lvl.name)
+        return violators
+
     def roll_back_to_stage(self, stage: int) -> None:
         match int(stage):
             case 1:

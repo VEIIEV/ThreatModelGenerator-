@@ -52,7 +52,7 @@ class CreateProject(View):
                 ob_ids = project.object_inf.values_list('id', flat=True)
 
                 proj_vars = vars(project)
-                add_options= {}
+                add_options = {}
                 for key, value in proj_vars.items():
                     if 'is_' in key:
                         add_options[key] = value
@@ -64,8 +64,12 @@ class CreateProject(View):
                                        'ob_ids': ob_ids,
                                        'add_options': add_options})
             case '6':
-                return render(request, '../templates/projects/create_project_6.html', context={'project': project,
-                                                                                               'violators': ViolatorLvls.objects.all()})
+
+                v_lvl_names = project.get_violator_lvl_names()
+                return render(request, '../templates/projects/create_project_6.html',
+                              context={'project': project,
+                                       'violators': ViolatorLvls.objects.all(),
+                                       'v_lvl_names': v_lvl_names})
             case '7':
 
                 # todo добавить кнопку для выгрузки каждой таблице отдельно как excel

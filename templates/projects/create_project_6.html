@@ -13,7 +13,8 @@
             {% if request.GET.stage == i %}
                 <li>{{ i }} - вы сейчас тут</li>
             {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный этап</a></li>
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
+                    этап</a></li>
             {% elif project.stage|slugify  < i %}
                 <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
             {% else %}
@@ -33,7 +34,8 @@
         <div>
             <p>
                 <label for="{{ violator.lvl }}">{{ violator.name }}</label>
-                <input type="checkbox" id="{{ violator.lvl }}" value="{{ violator.lvl }}" name="D_{{ violator.name }}">
+                <input type="checkbox" id="{{ violator.lvl }}" value="{{ violator.lvl }}"
+                       {% if violator.name in v_lvl_names %}checked{% endif %} name="D_{{ violator.name }}">
             </p>
         </div>
     {% endfor %}
