@@ -57,7 +57,6 @@ class CreateProject(View):
                     if 'is_' in key:
                         add_options[key] = value
 
-                print(add_options)
                 return render(request, '../templates/projects/create_project_5.html',
                               context={'project': project,
                                        'objs': ObjectOfInfluences.objects.all(),
@@ -127,8 +126,17 @@ class CreateProject(View):
                     # project.save()
                 project.stage = 5
                 project.save()
-                return render(request, '../templates/projects/create_project_5.html', context={'project': project,
-                                                                                               'objs': ObjectOfInfluences.objects.all()})
+
+                proj_vars = vars(project)
+                add_options = {}
+                for key, value in proj_vars.items():
+                    if 'is_' in key:
+                        add_options[key] = value
+
+                return render(request, '../templates/projects/create_project_5.html',
+                              context={'project': project,
+                                       'objs': ObjectOfInfluences.objects.all(),
+                                       'add_options': add_options})
                 pass
             case '5':
                 # TODO должно быть выбрано хотя бы 1 обязательное поле
@@ -146,8 +154,9 @@ class CreateProject(View):
                 project.stage = 6
                 project.save()
 
-                return render(request, '../templates/projects/create_project_6.html', context={'project': project,
-                                                                                               'violators': ViolatorLvls.objects.all()})
+                return render(request, '../templates/projects/create_project_6.html',
+                              context={'project': project,
+                                       'violators': ViolatorLvls.objects.all()})
 
             case '6':
                 data = QueryDict(request.body)
@@ -268,6 +277,6 @@ def test_bd(request):
 
 
 def test(request):
-    project = Projects.objects.get(name_project='хуй')
-    table = generate_bdu_table(project)
+    project = Projects.objects.get(id=9)
+    table = generate_obj_inf_table(project)
     return HttpResponse(status=200, content=table.items())

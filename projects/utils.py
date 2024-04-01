@@ -25,7 +25,6 @@ def genereate_neg_con_table(project: Projects):
 
 
 def generate_obj_inf_table(project: Projects):
-    # todo при составление таблицы, если не выбран объект воздействия в тесте, указывать не актуальность
     table = {'column_name': ['Негативные последствия', 'Объекты воздействия', 'Виды воздействия']}
     neg_cons = project.negative_consequences.all()
     for neg_con in neg_cons:
@@ -44,8 +43,11 @@ def generate_obj_inf_table(project: Projects):
                     table.update({f'{neg_con.name} ({lvl})': temp | {obj.name: kind}})
                 else:
                     table[f'{neg_con.name} ({lvl})'] = {obj.name: kind}
+        if f'{neg_con.name} ({lvl})' not in table:
+            table[f'{neg_con.name} ({lvl})'] = {
+                'нет потенциальных объектов воздействия': 'воздействие отсутствует'}
 
-                # todo создать excel файл и вернуть его
+            # todo создать excel файл и вернуть его
     pprint(table)
     return table
 
@@ -209,6 +211,3 @@ def form_bdus_list_for(project: Projects) -> QuerySet[Bdus]:
     bdu = bdu.filter(violator__in=violators)
 
     return bdu
-
-
-
