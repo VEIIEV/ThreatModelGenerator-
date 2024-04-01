@@ -7,13 +7,14 @@
 <body>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
 
-<ul> 
+<ul>
     {% with '1 2 3 4 5 6 7' as list %}
         {% for i in list.split %}
             {% if request.GET.stage == i %}
                 <li>{{ i }} - вы сейчас тут</li>
             {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный этап</a></li>
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
+                    этап</a></li>
             {% elif project.stage|slugify  < i %}
                 <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
             {% else %}
@@ -33,7 +34,9 @@
         <div>
             <p>
                 <label for="{{ nc.id }}">{{ nc.name }}</label>
-                <input type="checkbox" id="{{ nc.id }}" value="{{ nc.id }}" name="{{ nc.name }}">
+                <input type="checkbox" id="{{ nc.id }}" value="{{ nc.id }}"
+                       {% if nc.id in ncs %}checked  {% endif %}
+                       name="{{ nc.name }}">
             </p>
         </div>
     {% endfor %}
