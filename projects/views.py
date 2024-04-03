@@ -15,12 +15,15 @@ from profils.models import User
 from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
 from .utils import create_word, genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table, \
     generate_violators_potential_table, form_bdus_list_for
-from .utils import genereate_neg_con_table
+
 
 # todo накатить фронт,
 
 
 class CreateProject(View):
+    system_type = {"GYS": "Государственная информационная система",
+                   "ISP": "Информационная система пресональных данных",
+                   "KII": "Объект критической информакционной инфраструктуры"}
 
     def get(self, request: HttpRequest):
         stage = request.GET.get('stage')
@@ -37,20 +40,38 @@ class CreateProject(View):
             case '1':
                 return render(request, '../templates/projects/create_project_1.html', context={'project': project})
             case '2':
-                return render(request, '../templates/projects/create_project_2.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_2.html',
+                              context={'project': project,
+                                       'system_type': self.system_type})
             case '3':
                 return render(request, '../templates/projects/create_project_3.html', context={'project': project})
             case '4':
+                ncs = project.negative_consequences.values_list('id', flat=True)
                 return render(request, '../templates/projects/create_project_4.html',
                               context={'project': project,
-                                       'negative_consequences': NegativeConsequences.objects.all()})
+                                       'negative_consequences': NegativeConsequences.objects.all(),
+                                       'ncs': ncs})
             case '5':
+                ob_ids = project.object_inf.values_list('id', flat=True)
+
+                proj_vars = vars(project)
+                add_options = {}
+                for key, value in proj_vars.items():
+                    if 'is_' in key:
+                        add_options[key] = value
+
                 return render(request, '../templates/projects/create_project_5.html',
                               context={'project': project,
-                                       'objs': ObjectOfInfluences.objects.all()})
+                                       'objs': ObjectOfInfluences.objects.all(),
+                                       'ob_ids': ob_ids,
+                                       'add_options': add_options})
             case '6':
-                return render(request, '../templates/projects/create_project_6.html', context={'project': project,
-                                                                                               'violators': ViolatorLvls.objects.all()})
+
+                v_lvl_names = project.get_violator_lvl_names()
+                return render(request, '../templates/projects/create_project_6.html',
+                              context={'project': project,
+                                       'violators': ViolatorLvls.objects.all(),
+                                       'v_lvl_names': v_lvl_names})
             case '7':
 
                 # todo добавить кнопку для выгрузки каждой таблице отдельно как excel
@@ -68,8 +89,8 @@ class CreateProject(View):
         project = Projects.objects.get(id=project_id)
 
         if (int(stage) < project.stage):
-            # todo написать функцию для модели project, который откатывает изменения для соот стадии
-            ...
+            # todo протестировать функцию для модели project, который откатывает изменения для соот стадии
+            project.roll_back_to_stage(stage)
 
         match stage:
             # todo в темплейте реализовать возможность создания нескольких ответственных лиц
@@ -87,7 +108,9 @@ class CreateProject(View):
                 project.type = request.POST['type']
                 project.stage = 3
                 project.save()
-                return render(request, '../templates/projects/create_project_3.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_3.html',
+                              context={'project': project,
+                                       'system_type': self.system_type})
             case '3':
                 project.system_lvl = request.POST['system_lvl']
                 project.stage = 4
@@ -106,8 +129,17 @@ class CreateProject(View):
                     # project.save()
                 project.stage = 5
                 project.save()
-                return render(request, '../templates/projects/create_project_5.html', context={'project': project,
-                                                                                               'objs': ObjectOfInfluences.objects.all()})
+
+                proj_vars = vars(project)
+                add_options = {}
+                for key, value in proj_vars.items():
+                    if 'is_' in key:
+                        add_options[key] = value
+
+                return render(request, '../templates/projects/create_project_5.html',
+                              context={'project': project,
+                                       'objs': ObjectOfInfluences.objects.all(),
+                                       'add_options': add_options})
                 pass
             case '5':
                 # TODO должно быть выбрано хотя бы 1 обязательное поле
@@ -125,8 +157,9 @@ class CreateProject(View):
                 project.stage = 6
                 project.save()
 
-                return render(request, '../templates/projects/create_project_6.html', context={'project': project,
-                                                                                               'violators': ViolatorLvls.objects.all()})
+                return render(request, '../templates/projects/create_project_6.html',
+                              context={'project': project,
+                                       'violators': ViolatorLvls.objects.all()})
 
             case '6':
                 data = QueryDict(request.body)
@@ -262,6 +295,6 @@ def test_bd(request):
 
 
 def test(request):
-    project = Projects.objects.get(name_project='хуй')
-    table = form_bdus_list_for(project)
-    return HttpResponse(status=200, content=table)
+    project = Projects.objects.get(id=9)
+    table = generate_obj_inf_table(project)
+    return HttpResponse(status=200, content=table.items())

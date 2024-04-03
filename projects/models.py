@@ -49,7 +49,7 @@ object_impact- распарсить и спарсить
     description = models.CharField(max_length=20000)
     object_impact = models.CharField(max_length=500)
     violator = models.CharField(max_length=255)
-    capecs = models.ManyToManyField(Capecs, related_name='capecs')
+    capecs = models.ManyToManyField(Capecs, related_name='capecs') # кирилл ты ебло
 
     is_grid = models.BooleanField(null=True)
     is_virtual = models.BooleanField(null=True)
@@ -59,8 +59,7 @@ object_impact- распарсить и спарсить
 
 class ObjectOfInfluences(models.Model):
     name = models.CharField(max_length=255)
-    bdu = models.ManyToManyField(Bdus)
-
+    bdus = models.ManyToManyField(Bdus, related_name='bdus') # кирилл ты ебло
 
 class NegativeConsequences(models.Model):
     name = models.CharField(max_length=25500)
@@ -114,35 +113,50 @@ class Projects(models.Model):
     def get_absolute_url(self):
         return reverse('projects:detail_project', kwargs={'id': self.pk})
 
+    def get_violator_lvl_names(self):
+        violators = set()
+        for violator in self.violators.all():
+            violators.add(violator.lvl.name)
+        return violators
+
     def roll_back_to_stage(self, stage: int) -> None:
-        match stage:
+        match int(stage):
             case 1:
-                self.violators.through.objects.all().delete()
-                self.object_inf.through.objects.all().delete()
-                self.negative_consequences.through.objects.all().delete()
+                self.violators.clear()
+                self.object_inf.clear()
+                self.negative_consequences.clear()
                 self.system_lvl = None
                 self.type = None
                 self.stage = 1
                 self.save()
             case 2:
-                self.violators.through.objects.all().delete()
-                self.object_inf.through.objects.all().delete()
-                self.negative_consequences.through.objects.all().delete()
-                self.type = None
+                self.violators.clear()
+                self.object_inf.clear()
+                self.negative_consequences.clear()
+                self.system_lvl = None
                 self.stage = 2
                 self.save()
             case 3:
-                self.violators.through.objects.all().delete()
-                self.object_inf.through.objects.all().delete()
-                self.negative_consequences.through.objects.all().delete()
+                self.violators.clear()
+                self.object_inf.clear()
+                self.negative_consequences.clear()
                 self.stage = 3
                 self.save()
             case 4:
-                pass
+                self.violators.clear()
+                self.object_inf.clear()
+                self.negative_consequences.clear()
+                self.stage = 4
+                self.save()
             case 5:
-                pass
+                self.violators.clear()
+                self.object_inf.clear()
+                self.stage = 5
+                self.save()
             case 6:
-                pass
+                self.violators.clear()
+                self.stage = 6
+                self.save()
 
 
 class RPersons(models.Model):
@@ -150,3 +164,5 @@ class RPersons(models.Model):
     name = models.CharField(max_length=255)
     appointment = models.CharField(max_length=255)
     projects = models.ForeignKey(Projects, on_delete=models.PROTECT, null=True, related_name='r_persons')
+
+

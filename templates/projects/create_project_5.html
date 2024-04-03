@@ -13,7 +13,8 @@
             {% if request.GET.stage == i %}
                 <li>{{ i }} - вы сейчас тут</li>
             {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный этап</a></li>
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
+                    этап</a></li>
             {% elif project.stage|slugify  < i %}
                 <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
             {% else %}
@@ -33,29 +34,22 @@
         <div>
             <p>
                 <label for="{{ ob.id }}">{{ ob.name }}</label>
-                <input type="checkbox" id="{{ ob.id }}" value="{{ ob.id }}" name="D_{{ ob.name }}">
+                <input type="checkbox" id="{{ ob.id }}" value="{{ ob.id }}"
+                        {% if ob.id in ob_ids %} checked {% endif %}
+                       name="D_{{ ob.name }}">
             </p>
         </div>
     {% endfor %}
 
     <!-- может и не делать этого вовсе, какая-то хуйня откровенно говоря -->
     <p>укажити дополнительные модификаторы(опционально)</p>
-    <p>
-        <label for="grid">grid system</label>
-        <input type="checkbox" id="grid" name="A_grid system">
-    </p>
-    <p>
-        <label for="virtual">virtual system</label>
-        <input type="checkbox" id="virtual" name="A_virtual system">
-    </p>
-    <p>
-        <label for="wireless">wireless system</label>
-        <input type="checkbox" id="wireless" name="A_wireless system">
-    </p>
-    <p>
-        <label for="cloud">cloud system</label>
-        <input type="checkbox" id="cloud" name="A_cloud system">
-    </p>
+    {% for key, value in add_options.items %}
+        <p>
+            <label for="{{ key|slice:"3:" }}">{{ key|slice:"3:" }} system</label>
+            <input type="checkbox" id={{ key|slice:"3:" }}
+                    {% if value %}checked{% endif %} name="A_{{ key|slice:"3:" }} system">
+        </p>
+    {% endfor %}
 
     <p><input type="submit" value="Create"></p>
 </form>
