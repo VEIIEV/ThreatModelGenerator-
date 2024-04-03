@@ -25,7 +25,7 @@ def genereate_neg_con_table(project: Projects):
 
 
 def generate_obj_inf_table(project: Projects):
-    table = {'column_name': ['Негативные последствия', 'Объекты воздействия', 'Виды воздействия']}
+    table = {}
     neg_cons = project.negative_consequences.all()
     for neg_con in neg_cons:
         if 'физическому' in neg_con.type:
@@ -40,25 +40,21 @@ def generate_obj_inf_table(project: Projects):
                 kind = KindOfOfInfluences.objects.get(object_of_inf=obj, neg_cons=neg_con).kind_of_inf
                 if f'{neg_con.name} ({lvl})' in table:
                     temp = table[f'{neg_con.name} ({lvl})']
-                    table.update({f'{neg_con.name} ({lvl})': temp | {obj.name: kind}})
+                    table.update({f'{neg_con.name} ({lvl})': temp | {obj.name: [kind]}})
                 else:
-                    table[f'{neg_con.name} ({lvl})'] = {obj.name: kind}
+                    table[f'{neg_con.name} ({lvl})'] = {obj.name: [kind]}
         if f'{neg_con.name} ({lvl})' not in table:
             table[f'{neg_con.name} ({lvl})'] = {
                 'нет потенциальных объектов воздействия': 'воздействие отсутствует'}
 
             # todo создать excel файл и вернуть его
-    pprint(table)
+    print(table)
     return table
 
 
 def generate_violators_type_table(project: Projects):
     # вид нарушителя(название), тип нарушителя (внеш, внут), Возможные цели (мотивация) реализации угроз безопасности информации
-    table = {'column_name':
-                 ['Вид нарушителя',
-                  'Тип нарушителя',
-                  'Возможные цели (мотивация) реализации угроз безопасности информации']
-             }
+    table = {}
     violators = project.violators.all()
     for violator in violators:
         if violator.type == 1:
@@ -80,11 +76,7 @@ def generate_violators_type_table(project: Projects):
 
 def generate_violators_potential_table(project: Projects):
     # Уровень возможностей, вид нарушителя(название), потенциал нарушителя
-    table = {'column_name':
-                 ['Уровень возможностей',
-                  'Вид нарушителя',
-                  'Потенциал нарушителя']
-             }
+    table = {}
     vlvls = ViolatorLvls.objects.all().order_by('lvl')
     for lvl in vlvls:
         violators = lvl.violators.all()
@@ -115,17 +107,7 @@ def generate_bdu_table(project: Projects):
     :return:
     '''
     # номер угрозы, название, уязвимость(опционально), вектор капек, нег пос, объект воздействия, нарушитель, сценарий реализации
-    table = {'column_name':
-                 ['Номер угрозы',
-                  'Название',
-                  'Уязвимость',  # поле будет пустое
-                  'Вектор Капек',
-                  'Негативное последствие',
-                  'Объект воздействия',
-                  'ТН',
-                  'Сценарий реализации',  # поле будет пустое
-                  ]
-             }
+    table = {}
     correct_obj_list = project.object_inf.all()
 
     bdus: QuerySet[Bdus] = form_bdus_list_for(project).order_by('id')
@@ -191,7 +173,6 @@ def form_capec_vector_for(capec: Capecs) -> str:
 
 def form_bdus_list_for(project: Projects) -> QuerySet[Bdus]:
     # функция которая подвязывает к проекту актуальные бдухи
-    project = Projects.objects.get(id=3)
     # фильтрация по объектам
     objects = ObjectOfInfluences.objects.filter(name__in=project.object_inf.values_list('name', flat=True))
     bdu = Bdus.objects.none()

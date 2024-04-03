@@ -11,10 +11,12 @@ from django.http import HttpResponse, HttpRequest, QueryDict
 from django.shortcuts import render
 from django.views import View
 from docx import Document
+from docx.table import Table
+
 from profils.models import User
 from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
 from .utils import create_word, genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table, \
-    generate_violators_potential_table, form_bdus_list_for
+    generate_violators_potential_table, form_bdus_list_for, generate_bdu_table
 
 
 # todo накатить фронт,
@@ -234,12 +236,73 @@ def Download_Project(request: HttpRequest):
                 table2.cell(row, col).text = ""
             else:
                 listok.append((table2.cell(row, col).text))
-                print(listok)
+
 
     #скрещиваю пустые ячейки с пред идущимиЫ
     for row in range(row_count):
         if table2.cell(row, 0).text == '':
             table2.cell(row-1, 0).merge(table2.cell(row, 0))
+
+    #работа с таблицей №3   {         {     {       }        }          }
+    objinftable = generate_obj_inf_table(project)
+    table3 = doc.tables[2]
+    for key in objinftable:
+        for elem in objinftable[key]:
+            #for key_to in objinftable[key][elem]:
+            new_row = table3.add_row().cells
+            new_row[0].text = key
+            new_row[1].text = elem
+            new_row[2].text = objinftable[key][elem]
+
+    #работа с таблицей №4
+    gen_vio = generate_violators_type_table(project)
+    table4 = doc.tables[3]
+    for key in gen_vio:
+        for elem in gen_vio[key]:
+                new_row = table4.add_row().cells
+                new_row[0].text = str(key)
+                new_row[1].text = str(elem)
+                new_row[2].text = str(gen_vio[key][elem])
+    #работа с таблицей №5
+    gen_poten = generate_violators_potential_table(project)
+
+    table5:Table = doc.tables[4]
+    for key in gen_poten:
+        for elem in gen_poten[key]:
+             new_row = table5.add_row().cells
+             new_row[0].text = key
+             new_row[1].text = elem
+             new_row[2].text = str(gen_poten[key][elem])
+
+    row_count = len(table5.rows)
+    col_count = len(table5.columns)
+    listok = []
+    for row in range(row_count):
+        for col in range(col_count):
+            if table5.cell(row, col).text in listok and table5.cell(row, col).text not in ['высокий','низкий','средний']:
+                table5.cell(row, col).text = ""
+            else:
+                listok.append((table5.cell(row, col).text))
+
+
+    for row in range(row_count):
+        if table5.cell(row, 0).text == '':
+            table5.cell(row-1, 0).merge(table5.cell(row, 0))
+
+
+    #таблица №6
+    gen_bdu = generate_bdu_table(project)
+    print('111111111111111111111111111111111111111111111111111')
+    generate_bdu_table(project)
+    print('111111111111111111111111111111111111111111111111111')
+    #table6:Table = doc.tables[6]
+    # for key in gen_bdu:
+    #     for elem in gen_bdu[key]:
+
+
+
+
+
 
     doc.save('новое_имя_файла.docx')
     word_file_path = 'новое_имя_файла.docx'
