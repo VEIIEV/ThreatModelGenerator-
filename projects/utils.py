@@ -110,7 +110,7 @@ def generate_bdu_table(project: Projects):
     table = {}
     correct_obj_list = project.object_inf.all()
 
-    bdus: QuerySet[Bdus] = form_bdus_list_for(project).order_by('id')
+    bdus: QuerySet[Bdus] = form_bdus_list_for(project).order_by('id').all()
     # Bdus.objects.all()
     bdus.all()
     for bdu in bdus:
@@ -154,7 +154,7 @@ def generate_bdu_table(project: Projects):
 
     # todo создать excel файл и вернуть его
 
-    print(table)
+    pprint(table)
     return table
 
 
