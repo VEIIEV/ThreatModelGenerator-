@@ -133,12 +133,17 @@ def generate_bdu_table(project: Projects):
             scenario = 'сценарий реализации - функция в разработке'
             violator_dict = {violator: scenario}
             neg_con_dict = {}
-            for obj_of_inf in obj_of_infs:
-                if obj_of_inf in correct_obj_list:
+            obj_of_infs = obj_of_infs & correct_obj_list
+            if obj_of_infs:
+                for obj_of_inf in obj_of_infs:
                     obj_of_inf = obj_of_inf.name
-                else:
-                    obj_of_inf = 'нет актуальных объектов'
-
+                    if neg_con in neg_con_dict:
+                        temp = neg_con_dict[neg_con]
+                        neg_con_dict.update({neg_con: temp | {obj_of_inf: violator_dict}})
+                    else:
+                        neg_con_dict[neg_con] = {obj_of_inf: violator_dict}
+            else:
+                obj_of_inf = 'нет актуальных объектов'
                 if neg_con in neg_con_dict:
                     temp = neg_con_dict[neg_con]
                     neg_con_dict.update({neg_con: temp | {obj_of_inf: violator_dict}})
