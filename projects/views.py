@@ -208,7 +208,7 @@ class ChooseSystemLvl(View):
                                  int(request.POST['integrity']),
                                  int(request.POST['accessibility']))
                 scope = int(request.POST['scope'])
-                for lvl, value in system_lvl_dict.items():
+                for lvl, value in self.system_lvl_dict.items():
                     if [signif_lvl, scope] in value:
                         project.system_lvl = lvl
                         project.stage = 4
