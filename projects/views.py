@@ -91,7 +91,6 @@ class CreateProject(View):
         project = Projects.objects.get(id=project_id)
 
         if (int(stage) < project.stage):
-            # todo протестировать функцию для модели project, который откатывает изменения для соот стадии
             project.roll_back_to_stage(stage)
 
         match stage:
@@ -184,6 +183,11 @@ class CreateProject(View):
 
 
 class ChooseSystemLvl(View):
+
+    system_lvl_dict = {'1': [[1, 1], [1, 2], [1, 3], [2, 1]],
+                       '2': [[2, 2], [2, 3], [3, 1]],
+                       '3': [[3, 2], [3, 3]]}
+
     def get(self, request: HttpRequest):
         project_id = request.GET.get('id')
         project = Projects.objects.get(id=project_id)
@@ -192,14 +196,14 @@ class ChooseSystemLvl(View):
     def post(self, request: HttpRequest):
         project_id = request.GET.get('id')
         project = Projects.objects.get(id=project_id)
+        stage = request.GET.get('stage')
+        if (int(stage) < project.stage):
+            project.roll_back_to_stage(stage)
         match project.type:
             case 'KII':
                 pass
 
             case 'GYS':
-                system_lvl_dict = {'1': [[1, 1], [1, 2], [1, 3], [2, 1]],
-                                   '2': [[2, 2], [2, 3], [3, 1]],
-                                   '3': [[3, 2], [3, 3]]}
                 signif_lvl = max(int(request.POST['confidentiality']),
                                  int(request.POST['integrity']),
                                  int(request.POST['accessibility']))
