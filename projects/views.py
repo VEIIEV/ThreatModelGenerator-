@@ -183,6 +183,41 @@ class CreateProject(View):
                 pass
 
 
+class ChooseSystemLvl(View):
+    def get(self, request: HttpRequest):
+        project_id = request.GET.get('id')
+        project = Projects.objects.get(id=project_id)
+        return render(request, f'../templates/projects/choose_lvl_{project.type}.html', context={'project': project})
+
+    def post(self, request: HttpRequest):
+        project_id = request.GET.get('id')
+        project = Projects.objects.get(id=project_id)
+        match project.type:
+            case 'KII':
+                pass
+
+            case 'GYS':
+                system_lvl_dict = {'1': [[1, 1], [1, 2], [1, 3], [2, 1]],
+                                   '2': [[2, 2], [2, 3], [3, 1]],
+                                   '3': [[3, 2], [3, 3]]}
+                signif_lvl = max(int(request.POST['confidentiality']),
+                                 int(request.POST['integrity']),
+                                 int(request.POST['accessibility']))
+                scope = int(request.POST['scope'])
+                for lvl, value in system_lvl_dict.items():
+                    if [signif_lvl, scope] in value:
+                        project.system_lvl = lvl
+                        project.stage = 4
+                        project.save()
+                        break
+                return render(request, '../templates/projects/create_project_4.html',
+                              context={'project': project,
+                                       'negative_consequences': NegativeConsequences.objects.all()})
+
+            case 'ISP':
+                pass
+
+
 @login_required(login_url='profils:logun_users')
 def Projects_list(request):
     paginate_by = 6

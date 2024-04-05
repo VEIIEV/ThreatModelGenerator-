@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a href="{% url 'profils:rend_glavn' %}">На главную</a>
+
+
+<p> Определение класс защищённости</p>
+
+<form action="{% url 'projects:ChooseSystemLvl' %}?id={{ project.id }}" method="post">
+
+    {% csrf_token %}
+    <p>Укажите потециальную степень возможного ущерба от нарушения:</p>
+
+    <label for='confidentiality'>конфиденциальности</label>
+    <select id='confidentiality' name="confidentiality">
+        <option value=1>низкий</option>
+        <option value=2>средний</option>
+        <option value=3>высокий</option>
+    </select>
+    <label for='integrity'>целостности</label>
+    <select id='integrity' name='integrity'>
+        <option value=1>низкий</option>
+        <option value=2>средний</option>
+        <option value=3>высокий</option>
+    </select>
+    <label for='accessibility'>доступности</label>
+    <select id='accessibility' name="accessibility">
+        <option value=1>низкий</option>
+        <option value=2>средний</option>
+        <option value=3>высокий</option>
+    </select>
+
+    <p title=" бла бла">Укажите масштаб информационной системы:</p>
+    <select id='scope' name='scope'>
+        <option value=1>федеральный</option>
+        <option value=2>региональный</option>
+        <option value=3>объектовый</option>
+    </select>
+
+    <p><input type="submit" value="Create"></p>
+</form>
+
+</body>
+</html>

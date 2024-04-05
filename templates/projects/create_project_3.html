@@ -27,6 +27,7 @@
 {% if project.system_lvl is not None %}
     <p>На данный момент ваш выбор - {{ project.system_lvl }}</p>
 {% endif %}
+<a href="{% url 'projects:ChooseSystemLvl' %}?id={{ project.id }}">альтернативный способ определение уровня системы</a>
 <form action="{% url 'projects:CreateProject' %}?stage=3&id={{ project.id }}" method="post">
 
     {% csrf_token %}
