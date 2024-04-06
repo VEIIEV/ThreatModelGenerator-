@@ -1,6 +1,6 @@
 import re
 from datetime import date
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseBadRequest
 from django.shortcuts import render
 import os
 import pandas as pd
@@ -183,7 +183,6 @@ class CreateProject(View):
 
 
 class ChooseSystemLvl(View):
-
     system_lvl_dict = {'1': [[1, 1], [1, 2], [1, 3], [2, 1]],
                        '2': [[2, 2], [2, 3], [3, 1]],
                        '3': [[3, 2], [3, 3]]}
@@ -195,13 +194,19 @@ class ChooseSystemLvl(View):
 
     def post(self, request: HttpRequest):
         project_id = request.GET.get('id')
-        project = Projects.objects.get(id=project_id)
+        if project_id is None:
+            return HttpResponseBadRequest("Missing 'id' parameter")
+
         stage = request.GET.get('stage')
+        if stage is None:
+            return HttpResponseBadRequest("Missing 'stage' parameter")
+
+        project = Projects.objects.get(id=project_id)
         if (int(stage) < project.stage):
             project.roll_back_to_stage(stage)
         match project.type:
             case 'KII':
-                pass
+                signif_lvl = max(int(request.POST['confidentiality']), )
 
             case 'GYS':
                 signif_lvl = max(int(request.POST['confidentiality']),

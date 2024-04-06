@@ -10,7 +10,7 @@
 
 <p> Определение класс защищённости</p>
 
-<form action="{% url 'projects:ChooseSystemLvl' %}?id={{ project.id }}" method="post">
+<form action="{% url 'projects:ChooseSystemLvl' %}?stage=3&id={{ project.id }}" method="post">
 
     {% csrf_token %}
     <p>Укажите потециальную степень возможного ущерба от нарушения:</p>
