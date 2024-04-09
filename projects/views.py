@@ -15,8 +15,8 @@ from docx.table import Table
 
 from profils.models import User
 from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
-from .utils import create_word, genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table, \
-    generate_violators_potential_table, form_bdus_list_for, generate_bdu_table
+from .utils import genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table, \
+    generate_violators_potential_table, form_bdus_list_for, generate_bdu_table, generate_doc
 
 
 # todo накатить фронт,
@@ -251,135 +251,10 @@ def Show_Projects(request, id):
 
 def Download_Project(request: HttpRequest):
     project = Projects.objects.get(id=request.GET.get('id'))
-    neg_pos = genereate_neg_con_table(project)
-    doc = Document('shablon_modeli_ugroz.docx')
-
-    for paragraph in doc.paragraphs:
-        if 'Модель угроз' in paragraph.text:
-            paragraph.text = paragraph.text.replace('Модель угроз', 'Тест замены2')
-    # автозаполнения даты
-    table = doc.tables[0]
-    current_date = str(date.today())
-    table.cell(0, 1).text = current_date
-    table2 = doc.tables[1]
-
-    # заполнение таблицы нег.последствия
-    for key in neg_pos:
-        for elems in neg_pos[key]:  # тут мы перебираем список
-            new_row = table2.add_row().cells
-            new_row[0].text = key
-            new_row[1].text = elems
-
-    # удаляю повтор.значения в таблице
-    row_count = len(table2.rows)
-    col_count = len(table2.columns)
-    listok = []
-    for row in range(row_count):
-        for col in range(col_count):
-            if table2.cell(row, col).text in listok:
-                table2.cell(row, col).text = ""
-            else:
-                listok.append((table2.cell(row, col).text))
-
-    # скрещиваю пустые ячейки с пред идущимиЫ
-    for row in range(row_count):
-        if table2.cell(row, 0).text == '':
-            table2.cell(row - 1, 0).merge(table2.cell(row, 0))
-
-    # работа с таблицей №3   {         {     {       }        }          }
-    objinftable = generate_obj_inf_table(project)
-    table3 = doc.tables[2]
-    for key in objinftable:
-        for elem in objinftable[key]:
-            # for key_to in objinftable[key][elem]:
-            new_row = table3.add_row().cells
-            new_row[0].text = key
-            new_row[1].text = elem
-            new_row[2].text = objinftable[key][elem]
-
-    # работа с таблицей №4
-    gen_vio = generate_violators_type_table(project)
-    table4 = doc.tables[3]
-    for key in gen_vio:
-        for elem in gen_vio[key]:
-            new_row = table4.add_row().cells
-            new_row[0].text = str(key)
-            new_row[1].text = str(elem)
-            new_row[2].text = str(gen_vio[key][elem])
-    # работа с таблицей №5
-    gen_poten = generate_violators_potential_table(project)
-
-    table5: Table = doc.tables[4]
-    for key in gen_poten:
-        for elem in gen_poten[key]:
-            new_row = table5.add_row().cells
-            new_row[0].text = key
-            new_row[1].text = elem
-            new_row[2].text = str(gen_poten[key][elem])
-
-    row_count = len(table5.rows)
-    col_count = len(table5.columns)
-    listok = []
-    for row in range(row_count):
-        for col in range(col_count):
-            if table5.cell(row, col).text in listok and table5.cell(row, col).text not in ['высокий', 'низкий',
-                                                                                           'средний']:
-                table5.cell(row, col).text = ""
-            else:
-                listok.append((table5.cell(row, col).text))
-
-    for row in range(row_count):
-        if table5.cell(row, 0).text == '':
-            table5.cell(row - 1, 0).merge(table5.cell(row, 0))
-
-    # таблица №6
-    count = 0
-    gen_bdu = generate_bdu_table(project)
-    print('111111111111111111111111111111111111111111111111111')
-    table6: Table = doc.tables[5]
-    for number_ugroz in gen_bdu:
-        print(number_ugroz)
-        for name_ugroz in gen_bdu[number_ugroz]:
-            for uyazvimost in gen_bdu[number_ugroz][name_ugroz]:
-                for vectorCapec in gen_bdu[number_ugroz][name_ugroz][uyazvimost]:
-                    for negativ in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec]:
-                        for object in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ]:
-                            for tn in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object]:
-                                new_row = table6.add_row().cells
-                                new_row[0].text = number_ugroz
-                                new_row[1].text = name_ugroz
-                                new_row[2].text = uyazvimost
-                                new_row[3].text = vectorCapec
-                                new_row[4].text = negativ
-                                new_row[5].text = object
-                                new_row[6].text = tn
-                                new_row[7].text = \
-                                    gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object][tn]
-
-    row_count = len(table6.rows)
-    col_count = len(table6.columns)
-    listok = []
-    temp = None
-    for row in range(row_count):
-        if table6.cell(row, 0).text != temp:
-            listok.clear()
-            temp = table6.cell(row, 0).text
-        for col in range(col_count):
-            if table6.cell(row, col).text in listok:
-                table6.cell(row, col).text = ""
-            else:
-                listok.append((table6.cell(row, col).text))
-
-    for row in range(row_count):
-        for col in range(col_count):
-            if table6.cell(row, col).text == '':
-                table6.cell(row - 1, col).merge(table6.cell(row, col))
-
-    doc.save('новое_имя_файла.docx')
-    word_file_path = 'новое_имя_файла.docx'
-    response = FileResponse(open(word_file_path, 'rb'))
+    response = generate_doc(project)
     response['Content-Disposition'] = 'attachment; filename="shablon_modeli_ugroz.docx"'
     return response
+
 
 
 # todo вынести в отдельное  апи приложение
