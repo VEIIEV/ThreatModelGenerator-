@@ -252,7 +252,6 @@ def Show_Projects(request, id):
 def Download_Project(request: HttpRequest):
     project = Projects.objects.get(id=request.GET.get('id'))
     response = generate_doc(project)
-    response['Content-Disposition'] = 'attachment; filename="shablon_modeli_ugroz.docx"'
     return response
 
 

@@ -115,7 +115,7 @@ def generate_doc(project: Projects):
     count = 0
     gen_bdu = generate_bdu_table(project)
     print('111111111111111111111111111111111111111111111111111')
-    table6: Table = doc.tables[5]
+    table6: Table = doc.tables[6]
     for number_ugroz in gen_bdu:
         print(number_ugroz)
         for name_ugroz in gen_bdu[number_ugroz]:
@@ -154,6 +154,7 @@ def generate_doc(project: Projects):
     doc.save('новое_имя_файла.docx')
     word_file_path = 'новое_имя_файла.docx'
     response = FileResponse(open(word_file_path, 'rb'))
+    response['Content-Disposition'] = 'attachment; filename="новое_имя_файла.docx"'
     return response
 
 
@@ -339,8 +340,8 @@ def form_bdus_list_for(project: Projects) -> QuerySet[Bdus]:
     bdu = bdu.filter(Q(is_cloud=project.is_cloud) | Q(is_cloud=None)).order_by('id')
 
     # фильтрация по нарушителям
-    # todo я переделал функцию, возможно она сломалась, нужно затестить
-    violators = project.get_violator_lvl_names()
-    bdu = bdu.filter(violator__in=violators)
+    # todo я переделал функцию, она сломалась, нужно затестить
+    # violators = project.get_violator_lvl_names()
+    # bdu = bdu.filter(violator__in=violators)
 
     return bdu
