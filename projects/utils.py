@@ -1,13 +1,181 @@
 import re
+from datetime import date
 from pprint import pprint
 
 from django.db.models import Q, QuerySet
+from django.http import FileResponse
+from docx import Document
+from docx.enum.text import WD_BREAK
+from docx.table import Table
 
-from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus, ObjectOfInfluences, Capecs
+from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus, ObjectOfInfluences, Capecs, \
+    NormativeDocuments
 
 
-def create_word(project: Projects):
-    pass
+def add_bullet_list(paragraph, is_text, list_items):
+    for item in list_items:
+        run = paragraph.add_run(f'• {item}')
+        if is_text:
+            run.add_break(WD_BREAK.LINE)
+
+
+def generate_doc(project: Projects):
+    doc: Document = Document('shablon_modeli_ugroz.docx')
+    for paragraph in doc.paragraphs:
+        paragraph.text = paragraph.text.replace('__должность__', project.r_persons.all()[0].appointment)
+        paragraph.text = paragraph.text.replace('__название_организации__',
+                                                'НАЗВАНИЕ ОРГАНИЗАЦИИ, ФУНКЦИЯ ТРЕБУЕТ ДОРАБОТКИ')
+        paragraph.text = paragraph.text.replace('__ФИО__', project.r_persons.all()[0].name)
+        paragraph.text = paragraph.text.replace('__дата__', date.today().strftime('%d.%m.%Y'))
+        paragraph.text = paragraph.text.replace('__тип_системы__', project.get_type_display())
+        paragraph.text = paragraph.text.replace('__название_системы__', project.name_project)
+        paragraph.text = paragraph.text.replace('__описание__системы__',
+                                                project.description if project.description is not None else "описание отсутствует")
+        paragraph.text = paragraph.text.replace('__год__', str(date.today().year))
+        if "__название_нег_поз__" in paragraph.text:
+            paragraph.text = paragraph.text.replace('__название_нег_поз__', '')
+            add_bullet_list(paragraph, True,
+                            project.negative_consequences.all().order_by('id').values_list('name', flat=True))
+        if '__список_нормативки_для_соот_системы__' in paragraph.text:
+            paragraph.text = paragraph.text.replace('__список_нормативки_для_соот_системы__', '')
+            add_bullet_list(paragraph, True,
+                            NormativeDocuments.objects.all().
+                            filter(type=project.type).
+                            order_by('id').
+                            values_list('name', flat=True))
+
+    # автозаполнения даты
+    table = doc.tables[0]
+    current_date = str(date.today())
+    table.cell(0, 1).text = current_date
+    table2 = doc.tables[1]
+    # заполнение таблицы нег.последствия
+    neg_pos = genereate_neg_con_table(project)
+    for key in neg_pos:
+        for elems in neg_pos[key]:  # тут мы перебираем список
+            new_row = table2.add_row().cells
+            new_row[0].text = key
+            new_row[1].text = elems
+    # удаляю повтор.значения в таблице
+    row_count = len(table2.rows)
+    col_count = len(table2.columns)
+    listok = []
+    for row in range(row_count):
+        for col in range(col_count):
+            if table2.cell(row, col).text in listok:
+                table2.cell(row, col).text = ""
+            else:
+                listok.append((table2.cell(row, col).text))
+    # скрещиваю пустые ячейки с пред идущимиЫ
+    for row in range(row_count):
+        if table2.cell(row, 0).text == '':
+            table2.cell(row - 1, 0).merge(table2.cell(row, 0))
+    # работа с таблицей №3   {         {     {       }        }          }
+    objinftable = generate_obj_inf_table(project)
+    table3 = doc.tables[2]
+    for key in objinftable:
+        for elem in objinftable[key]:
+            # for key_to in objinftable[key][elem]:
+            new_row = table3.add_row().cells
+            new_row[0].text = key
+            new_row[1].text = elem
+            new_row[2].text = objinftable[key][elem]
+    # работа с таблицей №4
+    gen_vio = generate_violators_type_table(project)
+    table4 = doc.tables[3]
+    for key in gen_vio:
+        for elem in gen_vio[key]:
+            new_row = table4.add_row().cells
+            new_row[0].text = str(key)
+            new_row[1].text = str(elem)
+            new_row[2].text = str(gen_vio[key][elem])
+    # работа с таблицей №5
+    gen_poten = generate_violators_potential_table(project)
+    table5: Table = doc.tables[4]
+    for key in gen_poten:
+        for elem in gen_poten[key]:
+            new_row = table5.add_row().cells
+            new_row[0].text = key
+            new_row[1].text = elem
+            new_row[2].text = str(gen_poten[key][elem])
+    row_count = len(table5.rows)
+    col_count = len(table5.columns)
+    listok = []
+    for row in range(row_count):
+        for col in range(col_count):
+            if table5.cell(row, col).text in listok and table5.cell(row, col).text not in ['высокий', 'низкий',
+                                                                                           'средний']:
+                table5.cell(row, col).text = ""
+            else:
+                listok.append((table5.cell(row, col).text))
+    for row in range(row_count):
+        if table5.cell(row, 0).text == '':
+            table5.cell(row - 1, 0).merge(table5.cell(row, 0))
+    # таблица №6
+    count = 0
+    gen_bdu = generate_bdu_table(project)
+    print('111111111111111111111111111111111111111111111111111')
+    table6: Table = doc.tables[6]
+
+    # в теории универсальная функция для создания таблицы, на практике  прокидывает ошибки
+
+    # def something(ddddiict: dict, table: Table, keys: list = []):
+    #     for key, value in ddddiict.items():
+    #         if type(value) is dict:
+    #             keys.append(key)
+    #             something(ddddiict[key], table, keys)
+    #         elif type(value) is list:
+    #             for elem in ddddiict[key]:
+    #                 keys.append(key)
+    #                 something(elem, table, keys)
+    #         else:
+    #             new_row = table.add_row().cells
+    #             length = len(keys)
+    #             for i in range(length):
+    #                 new_row[i].text=keys[i]
+    #                 print(new_row[i].text)
+    #
+    # something(gen_bdu, table6)
+
+    for number_ugroz in gen_bdu:
+        print(number_ugroz)
+        for name_ugroz in gen_bdu[number_ugroz]:
+            for uyazvimost in gen_bdu[number_ugroz][name_ugroz]:
+                for vectorCapec in gen_bdu[number_ugroz][name_ugroz][uyazvimost]:
+                    for negativ in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec]:
+                        for object in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ]:
+                            for tn in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object]:
+                                new_row = table6.add_row().cells
+                                new_row[0].text = number_ugroz
+                                new_row[1].text = name_ugroz
+                                new_row[2].text = uyazvimost
+                                new_row[3].text = vectorCapec
+                                new_row[4].text = negativ
+                                new_row[5].text = object
+                                new_row[6].text = tn
+                                new_row[7].text = \
+                                    gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object][tn]
+    row_count = len(table6.rows)
+    col_count = len(table6.columns)
+    listok = []
+    temp = None
+    for row in range(row_count):
+        if table6.cell(row, 0).text != temp:
+            listok.clear()
+            temp = table6.cell(row, 0).text
+        for col in range(col_count):
+            if table6.cell(row, col).text in listok:
+                table6.cell(row, col).text = ""
+            else:
+                listok.append((table6.cell(row, col).text))
+    for row in range(row_count):
+        for col in range(col_count):
+            if table6.cell(row, col).text == '':
+                table6.cell(row - 1, col).merge(table6.cell(row, col))
+    doc.save('новое_имя_файла.docx')
+    word_file_path = 'новое_имя_файла.docx'
+    response = FileResponse(open(word_file_path, 'rb'))
+    return response
 
 
 def genereate_neg_con_table(project: Projects):
@@ -18,7 +186,6 @@ def genereate_neg_con_table(project: Projects):
             table[neg_con.type].append(neg_con.name)
         else:
             table[neg_con.type] = [neg_con.name]
-    pprint(table)
 
     # todo создать excel файл и вернуть его
     return table
@@ -70,7 +237,6 @@ def generate_violators_type_table(project: Projects):
             else:
                 table[violator.name] = {type: violator.motives}
     # todo создать excel файл и вернуть его
-    pprint(table)
     return table
 
 
@@ -94,7 +260,6 @@ def generate_violators_potential_table(project: Projects):
                 else:
                     table[lvl.name] = {violator.name: potential}
     # todo создать excel файл и вернуть его
-    pprint(table)
     return table
 
 
@@ -192,8 +357,8 @@ def form_bdus_list_for(project: Projects) -> QuerySet[Bdus]:
     bdu = bdu.filter(Q(is_cloud=project.is_cloud) | Q(is_cloud=None)).order_by('id')
 
     # фильтрация по нарушителям
-    # todo я переделал функцию, возможно она сломалась, нужно затестить
-    violators = project.get_violator_lvl_names()
-    bdu = bdu.filter(violator__in=violators)
+    # todo я переделал функцию, она сломалась, нужно разобраться
+    # violators = project.get_violator_lvl_names()
+    # bdu = bdu.filter(violator__in=violators)
 
     return bdu

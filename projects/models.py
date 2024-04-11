@@ -8,6 +8,7 @@ from profils.models import User
 
 class ViolatorLvls(models.Model):
     lvl = models.IntegerField(primary_key=True)
+    alias = models.CharField(max_length=2550, blank=True, null=True)
     name = models.CharField(max_length=2550, blank=True, null=True)
     description = models.TextField(max_length=3000)
 
@@ -49,7 +50,7 @@ object_impact- распарсить и спарсить
     description = models.CharField(max_length=20000)
     object_impact = models.CharField(max_length=500)
     violator = models.CharField(max_length=255)
-    capecs = models.ManyToManyField(Capecs, related_name='capecs') # кирилл ты ебло
+    capecs = models.ManyToManyField(Capecs, related_name='capecs')  # кирилл ты ебло
 
     is_grid = models.BooleanField(null=True)
     is_virtual = models.BooleanField(null=True)
@@ -59,7 +60,32 @@ object_impact- распарсить и спарсить
 
 class ObjectOfInfluences(models.Model):
     name = models.CharField(max_length=255)
-    bdus = models.ManyToManyField(Bdus, related_name='bdus') # кирилл ты ебло
+    bdus = models.ManyToManyField(Bdus, related_name='bdus')  # кирилл ты ебло
+
+
+# создать таблицу компонентов и способов реализации
+# компоненты связаны многие ко многим с объектами
+# имеют название, описание, сокращенный код, связь с способами реализации
+
+class Components(models.Model):
+    name = models.CharField(max_length=2550)
+    alias = models.CharField(max_length=2550, blank=True, null=True)
+    description = models.TextField(max_length=3000, blank=True)
+    object_of_influences = models.ManyToManyField(ObjectOfInfluences, related_name='components') # вот тут молодец
+
+class SPMethods(models.Model):
+    name = models.CharField(max_length=2550)
+    alias = models.CharField(max_length=2550, blank=True, null=True)
+    description = models.TextField(max_length=3000, blank=True)
+    components = models.ManyToManyField(Components, related_name='spmethods') # вот тут молодец
+    violator_lvls = models.CharField(max_length=255, blank=True, null=True)
+
+
+class Tactics(models.Model):
+    name = models.CharField(max_length=2550)
+    alias = models.CharField(max_length=2550, blank=True, null=True)
+    technique = models.TextField(max_length=3000, blank=True)
+    spmethods = models.ManyToManyField(SPMethods, related_name='tactics') # вот тут молодец
 
 class NegativeConsequences(models.Model):
     name = models.CharField(max_length=25500)
@@ -74,14 +100,32 @@ class KindOfOfInfluences(models.Model):
     kind_of_inf = models.CharField(max_length=25500, null=True, blank=True)
 
 
+class NormativeDocuments(models.Model):
+    class Meta:
+        unique_together = ["type", "name"]
+
+    class SystemTypes(models.TextChoices):
+        GYS = "GYS", _("State Information System")
+        ISPDN = "ISP", _("Personal Data Information System")
+        KII = "KII", _("Critical Information Infrastructure")
+
+    type = models.CharField(
+        max_length=3,
+        choices=SystemTypes.choices,
+        blank=True,
+        null=True
+    )
+    name = models.CharField(max_length=1000, blank=True, null=True)
+
+
 class Projects(models.Model):
     """Модель проектов"""
 
     # TODO возможно необходимо добавить связь многие ко многим с бду
     class SystemTypes(models.TextChoices):
-        GYS = "GYS", _("State Information System")
-        ISPDN = "ISP", _("Personal Data Information System")
-        KII = "KII", _("Critical Information Infrastructure")
+        GYS = "GYS", _("Государственная информационная система")
+        ISPDN = "ISP", _("Информационная система персональных данных")
+        KII = "KII", _("Объект критической информационной инфраструктуры")
 
     name_project = models.CharField(max_length=255, default='new project', unique=False, null=False, blank=False)
     description = models.TextField(max_length=10000, null=True, blank=True)
@@ -164,5 +208,3 @@ class RPersons(models.Model):
     name = models.CharField(max_length=255)
     appointment = models.CharField(max_length=255)
     projects = models.ForeignKey(Projects, on_delete=models.PROTECT, null=True, related_name='r_persons')
-
-
