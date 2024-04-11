@@ -8,6 +8,7 @@ from profils.models import User
 
 class ViolatorLvls(models.Model):
     lvl = models.IntegerField(primary_key=True)
+    alias = models.CharField(max_length=2550, blank=True, null=True)
     name = models.CharField(max_length=2550, blank=True, null=True)
     description = models.TextField(max_length=3000)
 
@@ -59,8 +60,30 @@ object_impact- распарсить и спарсить
 
 class ObjectOfInfluences(models.Model):
     name = models.CharField(max_length=255)
+    alias = models.CharField(max_length=255, blank=True, null=True)
     bdus = models.ManyToManyField(Bdus, related_name='bdus')  # кирилл ты ебло
 
+
+
+class Components(models.Model):
+    name = models.CharField(max_length=2550)
+    alias = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(max_length=3000, blank=True)
+    object_of_influences = models.ManyToManyField(ObjectOfInfluences, related_name='components') # вот тут молодец
+
+class SPMethods(models.Model):
+    name = models.CharField(max_length=2550)
+    alias = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(max_length=3000, blank=True)
+    components = models.ManyToManyField(Components, related_name='spmethods') # вот тут молодец
+    violator_lvls = models.CharField(max_length=255, blank=True, null=True)
+
+
+class Tactics(models.Model):
+    name = models.CharField(max_length=2550)
+    alias = models.CharField(max_length=255, blank=True, null=True)
+    technique = models.TextField(max_length=3000, blank=True)
+    spmethods = models.ManyToManyField(SPMethods, related_name='tactics') # вот тут молодец
 
 class NegativeConsequences(models.Model):
     name = models.CharField(max_length=25500)
