@@ -13,8 +13,7 @@
             {% if request.GET.stage == i %}
                 <li>{{ i }} - вы сейчас тут</li>
             {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
-                    этап</a></li>
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный этап</a></li>
             {% elif project.stage|slugify  < i %}
                 <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
             {% else %}
@@ -25,18 +24,13 @@
 </ul>
 
 
-{% if project.type is not None %}
-    <p>На данный момент ваш выбор - {{ project.type }}</p>
-{% endif %}
-<form action="{% url 'projects:CreateProject' %}?stage=2&id={{ project.id }}" method="post">
+<form action="{% url 'projects:CreateProject' %}?stage=8&id={{ project.id }}" method="post">
+
     {% csrf_token %}
-    <p>Выберети тип системы</p>
-    <select name="type">
-        <option value="" selected disabled hidden>Choose here</option>
-        {% for key, value in system_type.items %}
-            <option value="{{ key }}" {% if project.type == key %} selected {% endif %}>{{ value }}</option>
-        {% endfor %}
-    </select>
+   
+    <!-- кнопка выгрузки файла  -->
+    кнопка выгрузки файла
+    <a href="{% url 'projects:Download' %}?id={{ project.id }}">Скачать</a>
     <p><input type="submit" value="Create"></p>
 </form>
 

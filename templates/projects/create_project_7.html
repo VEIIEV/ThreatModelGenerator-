@@ -13,7 +13,8 @@
             {% if request.GET.stage == i %}
                 <li>{{ i }} - вы сейчас тут</li>
             {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный этап</a></li>
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
+                    этап</a></li>
             {% elif project.stage|slugify  < i %}
                 <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
             {% else %}
@@ -27,10 +28,17 @@
 <form action="{% url 'projects:CreateProject' %}?stage=7&id={{ project.id }}" method="post">
 
     {% csrf_token %}
-   
-    <!-- кнопка выгрузки файла  -->
-    кнопка выгрузки файла
-    <a href="{% url 'projects:Download' %}?id={{ project.id }}">Скачать</a>
+    <p>выберети нарушителей</p>
+
+    {% for violator in violators %}
+        <div>
+            <p>
+                <label for="{{ violator.lvl }}">{{ violator.name }}</label>
+                <input type="checkbox" id="{{ violator.lvl }}" value="{{ violator.lvl }}"
+                       {% if violator.name in v_lvl_names %}checked{% endif %} name="D_{{ violator.name }}">
+            </p>
+        </div>
+    {% endfor %}
     <p><input type="submit" value="Create"></p>
 </form>
 

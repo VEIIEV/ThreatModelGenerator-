@@ -66,6 +66,9 @@ class ObjectOfInfluences(models.Model):
 
 
 class Components(models.Model):
+    '''
+    В бд заполнены связи для 1 2 6 объекта
+    '''
     name = models.CharField(max_length=2550)
     alias = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(max_length=3000, blank=True)
@@ -139,6 +142,8 @@ class Projects(models.Model):
     negative_consequences = models.ManyToManyField(NegativeConsequences)
 
     object_inf = models.ManyToManyField(ObjectOfInfluences)
+
+    components = models.ManyToManyField(Components, related_name='projects')
 
     is_grid = models.BooleanField(null=True)
     is_virtual = models.BooleanField(null=True)

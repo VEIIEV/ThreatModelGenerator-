@@ -8,7 +8,7 @@
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
 
 <ul>
-    {% with '1 2 3 4 5 6 7' as list %}
+    {% with '1 2 3 4 5 6 7 8' as list %}
         {% for i in list.split %}
             {% if request.GET.stage == i %}
                 <li>{{ i }} - вы сейчас тут</li>
@@ -28,17 +28,28 @@
 <form action="{% url 'projects:CreateProject' %}?stage=6&id={{ project.id }}" method="post">
 
     {% csrf_token %}
-    <p>выберети нарушителей</p>
+    <p>выберети компоненты воздействия</p>
 
-    {% for violator in violators %}
+    {% for ob, components in objects.items %}
         <div>
-            <p>
-                <label for="{{ violator.lvl }}">{{ violator.name }}</label>
-                <input type="checkbox" id="{{ violator.lvl }}" value="{{ violator.lvl }}"
-                       {% if violator.name in v_lvl_names %}checked{% endif %} name="D_{{ violator.name }}">
-            </p>
+            <p><b>{{ ob }}</b></p>
+            {% if components.exists %}
+                {% for component in components %}
+                    <div>
+                        <p>
+                            <label for="{{ component.id }}">{{ component.name }}</label>
+                            <input type="checkbox" id="{{ component.id }}" value="{{ component.id }}"
+                                    {% if component.id in component_ids %} checked {% endif %}
+                                   name="D_{{ component.name }}">
+                        </p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>нет компонентов</p>
+            {% endif %}
         </div>
     {% endfor %}
+
     <p><input type="submit" value="Create"></p>
 </form>
 

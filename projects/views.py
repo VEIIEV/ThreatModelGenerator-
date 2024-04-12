@@ -14,7 +14,8 @@ from docx import Document
 from docx.table import Table
 
 from profils.models import User
-from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls
+from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls, \
+    Components
 from .utils import genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table, \
     generate_violators_potential_table, form_bdus_list_for, generate_bdu_table, generate_doc
 
@@ -70,7 +71,7 @@ class CreateProject(View):
             case '6':
 
                 v_lvl_names = project.get_violator_lvl_names()
-                return render(request, '../templates/projects/create_project_6.html',
+                return render(request, '../templates/projects/create_project_7.html',
                               context={'project': project,
                                        'violators': ViolatorLvls.objects.all(),
                                        'v_lvl_names': v_lvl_names})
@@ -78,7 +79,9 @@ class CreateProject(View):
 
                 # todo добавить кнопку для выгрузки каждой таблице отдельно как excel
                 # todo добавить кнопку для выгрузки всего ворд документа
-                return render(request, '../templates/projects/create_project_7.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_8.html', context={'project': project})
+
+    #todo попроавить откат и get
 
     def post(self, request: HttpRequest):
 
@@ -146,11 +149,18 @@ class CreateProject(View):
                 # TODO должно быть выбрано хотя бы 1 обязательное поле
                 data = QueryDict(request.body)
                 print(data)
+
+                # мне нужно параллельно составить словарь где ключ объект, значение список компонентов
+                object_to_response = {}
                 for key in data.keys():
                     if re.search("D_", key) is not None:
+                        # внесение в базу
                         obj_id = data.get(key)
                         obj = ObjectOfInfluences.objects.get(id=int(obj_id))
                         project.object_inf.add(obj)
+                        # составление списка компонентов для респонса
+                        object_to_response[obj.name] = obj.components.all()
+
                 project.is_grid = True if ("A_grid system" in data) else False
                 project.is_virtual = True if ("A_virtual system" in data) else False
                 project.is_wireless = True if ("A_wireless system" in data) else False
@@ -160,9 +170,23 @@ class CreateProject(View):
 
                 return render(request, '../templates/projects/create_project_6.html',
                               context={'project': project,
-                                       'violators': ViolatorLvls.objects.all()})
+                                       'objects': object_to_response,})
 
             case '6':
+                data = QueryDict(request.body)
+                print(data)
+                for key in data.keys():
+                    if re.search("D_", key) is not None:
+                        component_id = data.get(key)
+                        component = Components.objects.get(id=int(component_id))
+                        project.components.add(component)
+                project.stage = 7
+                project.save()
+                return render(request, '../templates/projects/create_project_7.html',
+                              context={'project': project,
+                                       'violators': ViolatorLvls.objects.all()})
+
+            case '7':
                 data = QueryDict(request.body)
                 print(data)
                 for key in data.keys():
@@ -171,15 +195,14 @@ class CreateProject(View):
                         violators = ViolatorLvls.objects.get(lvl=vio_lvl).violators.all()
                         for violator in violators:
                             project.violators.add(violator)
-                project.stage = 7
+                project.stage = 8
                 project.save()
 
-                return render(request, '../templates/projects/create_project_7.html', context={'project': project})
-            case '7':
+                return render(request, '../templates/projects/create_project_8.html', context={'project': project})
+            case '8':
                 # todo дело сделано, показываем итог и выгружаем док
-                doc = create_word(project)
-
-                pass
+                response = generate_doc(project)
+                return response
 
 
 class ChooseSystemLvl(View):
