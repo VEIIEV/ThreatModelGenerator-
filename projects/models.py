@@ -171,6 +171,7 @@ class Projects(models.Model):
             case 1:
                 self.violators.clear()
                 self.object_inf.clear()
+                self.components.clear()
                 self.negative_consequences.clear()
                 self.system_lvl = None
                 self.type = None
@@ -179,6 +180,7 @@ class Projects(models.Model):
             case 2:
                 self.violators.clear()
                 self.object_inf.clear()
+                self.components.clear()
                 self.negative_consequences.clear()
                 self.system_lvl = None
                 self.stage = 2
@@ -186,23 +188,31 @@ class Projects(models.Model):
             case 3:
                 self.violators.clear()
                 self.object_inf.clear()
+                self.components.clear()
                 self.negative_consequences.clear()
                 self.stage = 3
                 self.save()
             case 4:
                 self.violators.clear()
                 self.object_inf.clear()
+                self.components.clear()
                 self.negative_consequences.clear()
                 self.stage = 4
                 self.save()
             case 5:
                 self.violators.clear()
                 self.object_inf.clear()
+                self.components.clear()
                 self.stage = 5
                 self.save()
             case 6:
                 self.violators.clear()
+                self.components.clear()
                 self.stage = 6
+                self.save()
+            case 7:
+                self.violators.clear()
+                self.stage = 7
                 self.save()
 
 

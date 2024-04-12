@@ -65,23 +65,32 @@ class CreateProject(View):
 
                 return render(request, '../templates/projects/create_project_5.html',
                               context={'project': project,
-                                       'objs': ObjectOfInfluences.objects.all(),
+                                       'objs': ObjectOfInfluences.objects.all().order_by('id'),
                                        'ob_ids': ob_ids,
                                        'add_options': add_options})
             case '6':
+                object_to_response = {}
+                for obj in project.object_inf.all():
+                    object_to_response[obj.name] = obj.components.all()
+                component_ids = project.object_inf.values_list('id', flat=True)
+                return render(request, '../templates/projects/create_project_6.html',
+                              context={'project': project,
+                                       'objects': object_to_response,
+                                       'component_ids': component_ids})
+
+            case '7':
 
                 v_lvl_names = project.get_violator_lvl_names()
                 return render(request, '../templates/projects/create_project_7.html',
                               context={'project': project,
                                        'violators': ViolatorLvls.objects.all(),
                                        'v_lvl_names': v_lvl_names})
-            case '7':
+            case '8':
 
                 # todo добавить кнопку для выгрузки каждой таблице отдельно как excel
                 # todo добавить кнопку для выгрузки всего ворд документа
                 return render(request, '../templates/projects/create_project_8.html', context={'project': project})
 
-    #todo попроавить откат и get
 
     def post(self, request: HttpRequest):
 
@@ -142,7 +151,7 @@ class CreateProject(View):
 
                 return render(request, '../templates/projects/create_project_5.html',
                               context={'project': project,
-                                       'objs': ObjectOfInfluences.objects.all(),
+                                       'objs': ObjectOfInfluences.objects.all().order_by('id'),
                                        'add_options': add_options})
                 pass
             case '5':
@@ -170,7 +179,7 @@ class CreateProject(View):
 
                 return render(request, '../templates/projects/create_project_6.html',
                               context={'project': project,
-                                       'objects': object_to_response,})
+                                       'objects': object_to_response, })
 
             case '6':
                 data = QueryDict(request.body)
@@ -276,7 +285,6 @@ def Download_Project(request: HttpRequest):
     project = Projects.objects.get(id=request.GET.get('id'))
     response = generate_doc(project)
     return response
-
 
 
 # todo вынести в отдельное  апи приложение
