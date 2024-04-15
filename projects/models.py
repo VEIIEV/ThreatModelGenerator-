@@ -75,6 +75,9 @@ class Components(models.Model):
     object_of_influences = models.ManyToManyField(ObjectOfInfluences, related_name='components') # вот тут молодец
 
 class SPMethods(models.Model):
+    '''
+      В бд заполнены связи для компонентов  биос  и ОС
+      '''
     name = models.CharField(max_length=2550)
     alias = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(max_length=3000, blank=True)

@@ -9,7 +9,7 @@ from docx.enum.text import WD_BREAK
 from docx.table import Table
 
 from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus, ObjectOfInfluences, Capecs, \
-    NormativeDocuments, Components
+    NormativeDocuments, Components, SPMethods
 
 
 def add_bullet_list(paragraph, is_text, list_items):
@@ -44,7 +44,14 @@ def generate_doc(project: Projects):
                             filter(type=project.type).
                             order_by('id').
                             values_list('name', flat=True))
-
+        if '__список_СП__' in paragraph.text:
+            paragraph.text = paragraph.text.replace('__список_СП__', '')
+            components = project.components.all()
+            smp: QuerySet = SPMethods.objects.none()
+            for component in components:
+                smp = smp | component.spmethods.all()
+            smp = smp.distinct().values_list('name', flat=True)
+            add_bullet_list(paragraph, True, smp)
     # автозаполнения даты
     table = doc.tables[0]
     current_date = str(date.today())
