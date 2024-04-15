@@ -9,7 +9,7 @@ from docx.enum.text import WD_BREAK
 from docx.table import Table
 
 from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus, ObjectOfInfluences, Capecs, \
-    NormativeDocuments
+    NormativeDocuments, Components
 
 
 def add_bullet_list(paragraph, is_text, list_items):
@@ -89,7 +89,7 @@ def generate_doc(project: Projects):
             new_row[0].text = str(key)
             new_row[1].text = str(elem)
             new_row[2].text = str(gen_vio[key][elem])
-    # работа с таблицей №5
+    # работа с таблицей №5(потенциал нарушителя)
     gen_poten = generate_violators_potential_table(project)
     table5: Table = doc.tables[4]
     for key in gen_poten:
@@ -111,51 +111,92 @@ def generate_doc(project: Projects):
     for row in range(row_count):
         if table5.cell(row, 0).text == '':
             table5.cell(row - 1, 0).merge(table5.cell(row, 0))
-    # таблица №6
-    count = 0
-    gen_bdu = generate_bdu_table(project)
-    print('111111111111111111111111111111111111111111111111111')
-    table6: Table = doc.tables[6]
-    for number_ugroz in gen_bdu:
-        print(number_ugroz)
-        for name_ugroz in gen_bdu[number_ugroz]:
-            for uyazvimost in gen_bdu[number_ugroz][name_ugroz]:
-                for vectorCapec in gen_bdu[number_ugroz][name_ugroz][uyazvimost]:
-                    for negativ in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec]:
-                        for object in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ]:
-                            for tn in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object]:
-                                new_row = table6.add_row().cells
-                                new_row[0].text = number_ugroz
-                                new_row[1].text = name_ugroz
-                                new_row[2].text = uyazvimost
-                                new_row[3].text = vectorCapec
-                                new_row[4].text = negativ
-                                new_row[5].text = object
-                                new_row[6].text = tn
-                                new_row[7].text = \
-                                    gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object][tn]
-    row_count = len(table6.rows)
-    col_count = len(table6.columns)
-    listok = []
-    temp = None
-    for row in range(row_count):
-        if table6.cell(row, 0).text != temp:
-            listok.clear()
-            temp = table6.cell(row, 0).text
-        for col in range(col_count):
-            if table6.cell(row, col).text in listok:
-                table6.cell(row, col).text = ""
-            else:
-                listok.append((table6.cell(row, col).text))
-    for row in range(row_count):
-        for col in range(col_count):
-            if table6.cell(row, col).text == '':
-                table6.cell(row - 1, col).merge(table6.cell(row, col))
+    # работа с таблицей №6(способы реализации)
+    print('66666666666666666666666666666666666')
+    gen_spm = generate_sp_methods_table(project)
+    table6: Table = doc.tables[5]
+    for obj in gen_spm:
+        for component in gen_spm[obj]:
+            for spm in gen_spm[obj][component]:
+                new_row = table6.add_row().cells
+                new_row[0].text = obj
+                new_row[1].text = component
+                new_row[2].text = spm
+    table6 = clear_duplicate(table6)
+
+
+
+    # работа с таблицей №7  (потенциальные угрозы)
+    # gen_bdu = generate_bdu_table(project)
+    # print('777777777777777777777777777777777777777777777')
+    # table7: Table = doc.tables[6]
+    # for number_ugroz in gen_bdu:
+    #     print(number_ugroz)
+    #     for name_ugroz in gen_bdu[number_ugroz]:
+    #         for uyazvimost in gen_bdu[number_ugroz][name_ugroz]:
+    #             for vectorCapec in gen_bdu[number_ugroz][name_ugroz][uyazvimost]:
+    #                 for negativ in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec]:
+    #                     for object in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ]:
+    #                         for tn in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object]:
+    #                             new_row = table7.add_row().cells
+    #                             new_row[0].text = number_ugroz
+    #                             new_row[1].text = name_ugroz
+    #                             new_row[2].text = uyazvimost
+    #                             new_row[3].text = vectorCapec
+    #                             new_row[4].text = negativ
+    #                             new_row[5].text = object
+    #                             new_row[6].text = tn
+    #                             new_row[7].text = \
+    #                                 gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object][tn]
+    # table7 = clear_duplicate(table7)
     doc.save('новое_имя_файла.docx')
     word_file_path = 'новое_имя_файла.docx'
     response = FileResponse(open(word_file_path, 'rb'))
     response['Content-Disposition'] = 'attachment; filename="новое_имя_файла.docx"'
     return response
+
+
+def clear_duplicate(table):
+    row_count = len(table.rows)
+    col_count = len(table.columns)
+    listok = []
+    temp = None
+    for row in range(row_count):
+        if table.cell(row, 0).text != temp:
+            listok.clear()
+            temp = table.cell(row, 0).text
+        for col in range(col_count):
+            if table.cell(row, col).text in listok:
+                table.cell(row, col).text = ""
+            else:
+                listok.append((table.cell(row, col).text))
+    for row in range(row_count):
+        for col in range(col_count):
+            if table.cell(row, col).text == '':
+                table.cell(row - 1, col).merge(table.cell(row, col))
+    return table
+
+
+
+def generate_sp_methods_table(project):
+    table = {}
+    objs = project.object_inf.all().order_by('id')
+    pr_components = project.components.all()
+    for obj in objs:
+        components: QuerySet[Components] = obj.components.all() & pr_components
+        for component in components:
+            spmethods: list[str] = component.spmethods.all().values_list('name',
+                                                                         flat=True) if component.spmethods.all().exists() else [
+                'СП отсутствует']
+            if f'{obj.name} ({obj.alias})' in table:
+                temp = table[f'{obj.name} ({obj.alias})']
+                table.update({f'{obj.name} ({obj.alias})': temp | {component.name: [spmethods[0]]}})
+            else:
+                table[f'{obj.name} ({obj.alias})'] = {component.name: [spmethods[0]]}
+    pprint(table)
+
+    # todo создать excel файл и вернуть его
+    return table
 
 
 def genereate_neg_con_table(project: Projects):
