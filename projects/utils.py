@@ -124,8 +124,6 @@ def generate_doc(project: Projects):
                 new_row[2].text = spm
     table6 = clear_duplicate(table6)
 
-
-
     # работа с таблицей №7  (потенциальные угрозы)
     # gen_bdu = generate_bdu_table(project)
     # print('777777777777777777777777777777777777777777777')
@@ -177,22 +175,29 @@ def clear_duplicate(table):
     return table
 
 
-
 def generate_sp_methods_table(project):
     table = {}
+    actual_lvl = project.violators.all().values_list('lvl_id', flat=True).distinct()
+    actual_lvl = ['В.' + str(i) for i in actual_lvl]
     objs = project.object_inf.all().order_by('id')
     pr_components = project.components.all()
     for obj in objs:
         components: QuerySet[Components] = obj.components.all() & pr_components
         for component in components:
-            spmethods: list[str] = component.spmethods.all().values_list('name',
-                                                                         flat=True) if component.spmethods.all().exists() else [
+            spmethods = component.spmethods.all() if component.spmethods.all().exists() else [
                 'СП отсутствует']
-            if f'{obj.name} ({obj.alias})' in table:
-                temp = table[f'{obj.name} ({obj.alias})']
-                table.update({f'{obj.name} ({obj.alias})': temp | {component.name: [spmethods[0]]}})
-            else:
-                table[f'{obj.name} ({obj.alias})'] = {component.name: [spmethods[0]]}
+            for spm in spmethods:
+                if type(spm) is str:
+                    spm_name = spm
+                elif spm.violator_lvls in actual_lvl:
+                    spm_name = spm.name
+                else:
+                    spm_name = 'СП отсутствует, так как нет подходящих нарушителей'
+                if f'{obj.name} ({obj.alias})' in table:
+                    temp = table[f'{obj.name} ({obj.alias})']
+                    table.update({f'{obj.name} ({obj.alias})': temp | {component.name: [spm_name]}})
+                else:
+                    table[f'{obj.name} ({obj.alias})'] = {component.name: [spm_name]}
     pprint(table)
 
     # todo создать excel файл и вернуть его
