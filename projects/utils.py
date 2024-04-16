@@ -23,6 +23,8 @@ def generate_doc(project: Projects):
     neg_pos = genereate_neg_con_table(project)
     doc: Document = Document('shablon_modeli_ugroz.docx')
     for paragraph in doc.paragraphs:
+        if '__Список_тегов__' in paragraph.text:
+            break
         paragraph.text = paragraph.text.replace('__должность__', project.r_persons.all()[0].appointment)
         paragraph.text = paragraph.text.replace('__название_организации__',
                                                 'НАЗВАНИЕ ОРГАНИЗАЦИИ, ФУНКЦИЯ ТРЕБУЕТ ДОРАБОТКИ')
@@ -133,10 +135,10 @@ def generate_doc(project: Projects):
     table6 = clear_duplicate(table6)
 
     # работа с таблицей №7(потенциал нарушителя)
-
     print('777777777777777777777777777777777777777777777')
     gen_pot_bdu = generate_potential_bdus_table(project)
     smps_set = set()
+    bdus_set = set()
     table7: Table = doc.tables[6]
     for number_bdus in gen_pot_bdu:
         for name_bdus in gen_pot_bdu[number_bdus]:
@@ -151,18 +153,19 @@ def generate_doc(project: Projects):
                                             obj_of_imp][
                                             component_t]:
                                     # todo  раскоментировать
-                                    #
-                                    # new_row = table7.add_row().cells
-                                    # new_row[0].text = number_bdus
-                                    # new_row[1].text = name_bdus
-                                    # new_row[2].text = vector_capec
-                                    # new_row[3].text = neg_con
-                                    # new_row[4].text = violator
-                                    # new_row[5].text = obj_of_imp
-                                    # new_row[6].text = component_t
-                                    # new_row[7].text = spm_t
+
+                                    new_row = table7.add_row().cells
+                                    new_row[0].text = number_bdus
+                                    new_row[1].text = name_bdus
+                                    new_row[2].text = vector_capec
+                                    new_row[3].text = neg_con
+                                    new_row[4].text = violator
+                                    new_row[5].text = obj_of_imp
+                                    new_row[6].text = component_t
+                                    new_row[7].text = spm_t
+                                    bdus_set.add((number_bdus, spm_t))
                                     smps_set.add(spm_t)
-    table7 = clear_duplicate(table7)
+    # table7 = clear_duplicate(table7)
 
     # работа с таблицей №8 (cпособы реализации и их техники)
     print('8888888888888888888888888888888888888888888888')
@@ -176,8 +179,19 @@ def generate_doc(project: Projects):
                 new_row[1].text = tactic_alias
                 new_row[2].text = tactic_name
     table8 = clear_duplicate(table8)
+
     # работа с таблицей №9  (актуальные угрозы)
-    # todo сместить номер таблицы на +2
+    print('999999999999999999999999999999999999999999999999999999')
+    table9: Table = doc.tables[8]
+    gen_bdus = generate_actual_bdus_table(bdus_set)
+    for bdu in gen_bdus:
+        for tactic_alias in gen_bdus[bdu]:
+            for verdict in gen_bdus[bdu][tactic_alias]:
+                new_row = table9.add_row().cells
+                new_row[0].text = bdu
+                new_row[1].text = tactic_alias
+                new_row[2].text = verdict
+    table9 = clear_duplicate(table9)
 
     # gen_bdu = generate_bdu_table(project)
     # print('88888888888888888888888888888888888888888888')
@@ -201,11 +215,9 @@ def generate_doc(project: Projects):
     #                             new_row[7].text = \
     #                                 gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object][tn]
     # table7 = clear_duplicate(table7)
-    doc.save('новое_имя_файла.docx')
-    word_file_path = 'новое_имя_файла.docx'
-    response = FileResponse(open(word_file_path, 'rb'))
-    response['Content-Disposition'] = 'attachment; filename="новое_имя_файла.docx"'
-    return response
+    filepath = 'новое_имя_файла.docx'
+    doc.save(filepath)
+    return filepath
 
 
 def clear_duplicate(table):
@@ -230,11 +242,47 @@ def clear_duplicate(table):
     return table
 
 
+def generate_actual_bdus_table(bdus_set: set[tuple[str, str]]):
+    result = {}
+    for bdu in bdus_set:
+        smp_obj: SPMethods = SPMethods.objects.filter(alias=bdu[1]).first()
+        if smp_obj is not None:
+            tactics = smp_obj.tactics.all()
+            if tactics.exists():
+                for tactic in tactics:
+                    if bdu[0] in result:
+                        temp = result[bdu[0]]
+                        result.update({bdu[0]: temp | {tactic.alias: ['Актуальна']}})
+                    else:
+                        result[bdu[0]] = {tactic.alias: ['Актуальна']}
+
+            else:
+                result[bdu[0]] = {'тактика отсутствует': ['Не актуальна']}
+        else:
+            result[bdu[0]] = {'тактика отсутствует': ['Не актуальна']}
+
+    result = replace_values_with_text(result)
+    result = dict(sorted(result.items()))
+
+    return result
+
+
+def replace_values_with_text(nested_dict, looking_for='Актуальна'):
+    for key, value in nested_dict.items():
+        temp = []
+        for k, v in value.items():
+            temp.append(v)
+        if [looking_for] in temp:
+            for k in value.keys():
+                nested_dict[key][k] = [looking_for]
+    return nested_dict
+
+
 def generate_tactic_table(smps: set[str]):
     smps = sorted(smps)
     result = {}
     for smp in smps:
-        smp: QuerySet[SPMethods] = SPMethods.objects.filter(alias=smp).first()
+        smp: SPMethods = SPMethods.objects.filter(alias=smp).first()
         if smp is not None:
             tactics = smp.tactics.all()
             if tactics.exists():

@@ -91,7 +91,6 @@ class CreateProject(View):
                 # todo добавить кнопку для выгрузки всего ворд документа
                 return render(request, '../templates/projects/create_project_8.html', context={'project': project})
 
-
     def post(self, request: HttpRequest):
 
         stage = request.GET.get('stage')
@@ -201,7 +200,7 @@ class CreateProject(View):
                 for key in data.keys():
                     if re.search("D_", key) is not None:
                         vio_lvl = data.get(key)
-                        project.violator_lvls.add( ViolatorLvls.objects.get(lvl=vio_lvl))
+                        project.violator_lvls.add(ViolatorLvls.objects.get(lvl=vio_lvl))
                         violators = ViolatorLvls.objects.get(lvl=vio_lvl).violators.all()
                         for violator in violators:
                             project.violators.add(violator)
@@ -284,7 +283,9 @@ def Show_Projects(request, id):
 
 def Download_Project(request: HttpRequest):
     project = Projects.objects.get(id=request.GET.get('id'))
-    response = generate_doc(project)
+    word_file_path = generate_doc(project)
+    response = FileResponse(open(word_file_path, 'rb'))
+    response['Content-Disposition'] = 'attachment; filename="новое_имя_файла.docx"'
     return response
 
 
