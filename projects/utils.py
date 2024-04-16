@@ -150,15 +150,17 @@ def generate_doc(project: Projects):
                                         gen_pot_bdu[number_bdus][name_bdus][vector_capec][neg_con][violator][
                                             obj_of_imp][
                                             component_t]:
-                                    new_row = table7.add_row().cells
-                                    new_row[0].text = number_bdus
-                                    new_row[1].text = name_bdus
-                                    new_row[2].text = vector_capec
-                                    new_row[3].text = neg_con
-                                    new_row[4].text = violator
-                                    new_row[5].text = obj_of_imp
-                                    new_row[6].text = component_t
-                                    new_row[7].text = spm_t
+                                    # todo  раскоментировать
+                                    #
+                                    # new_row = table7.add_row().cells
+                                    # new_row[0].text = number_bdus
+                                    # new_row[1].text = name_bdus
+                                    # new_row[2].text = vector_capec
+                                    # new_row[3].text = neg_con
+                                    # new_row[4].text = violator
+                                    # new_row[5].text = obj_of_imp
+                                    # new_row[6].text = component_t
+                                    # new_row[7].text = spm_t
                                     smps_set.add(spm_t)
     table7 = clear_duplicate(table7)
 
@@ -166,6 +168,14 @@ def generate_doc(project: Projects):
     print('8888888888888888888888888888888888888888888888')
     table8: Table = doc.tables[7]
     gen_tactics = generate_tactic_table(smps_set)
+    for smp in gen_tactics:
+        for tactic_alias in gen_tactics[smp]:
+            for tactic_name in gen_tactics[smp][tactic_alias]:
+                new_row = table8.add_row().cells
+                new_row[0].text = smp
+                new_row[1].text = tactic_alias
+                new_row[2].text = tactic_name
+    table8 = clear_duplicate(table8)
     # работа с таблицей №9  (актуальные угрозы)
     # todo сместить номер таблицы на +2
 
@@ -224,15 +234,18 @@ def generate_tactic_table(smps: set[str]):
     smps = sorted(smps)
     result = {}
     for smp in smps:
-        smp = SPMethods.objects.get(alias=smp)
-        tactics = smp.tactics.all()
-        if tactics.exists():
-            for tactic in tactics:
-                if smp.alias in result:
-                    temp = result[smp.alias]
-                    result.update({smp.alias: temp | {tactic.alias: [tactic.name]}})
-                else:
-                    result[smp.alias] = {tactic.alias: [tactic.name]}
+        smp: QuerySet[SPMethods] = SPMethods.objects.filter(alias=smp).first()
+        if smp is not None:
+            tactics = smp.tactics.all()
+            if tactics.exists():
+                for tactic in tactics:
+                    if smp.alias in result:
+                        temp = result[smp.alias]
+                        result.update({smp.alias: temp | {tactic.alias: [tactic.name]}})
+                    else:
+                        result[smp.alias] = {tactic.alias: [tactic.name]}
+            else:
+                result[smp.alias] = {'-': ['тактика отсутствует']}
     return result
 
 

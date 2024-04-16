@@ -64,7 +64,6 @@ class ObjectOfInfluences(models.Model):
     bdus = models.ManyToManyField(Bdus, related_name='bdus')  # кирилл ты ебло
 
 
-
 class Components(models.Model):
     '''
     В бд заполнены связи для 1 2 6 объекта
@@ -72,7 +71,8 @@ class Components(models.Model):
     name = models.CharField(max_length=2550)
     alias = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(max_length=3000, blank=True)
-    object_of_influences = models.ManyToManyField(ObjectOfInfluences, related_name='components') # вот тут молодец
+    object_of_influences = models.ManyToManyField(ObjectOfInfluences, related_name='components')  # вот тут молодец
+
 
 class SPMethods(models.Model):
     '''
@@ -81,15 +81,19 @@ class SPMethods(models.Model):
     name = models.CharField(max_length=2550)
     alias = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(max_length=3000, blank=True)
-    components = models.ManyToManyField(Components, related_name='spmethods') # вот тут молодец
+    components = models.ManyToManyField(Components, related_name='spmethods')  # вот тут молодец
     violator_lvls = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Tactics(models.Model):
+    '''
+         В бд заполнены связи для СП 1.1 1.2  2.1
+    '''
     name = models.CharField(max_length=2550)
     alias = models.CharField(max_length=255, blank=True, null=True)
     technique = models.TextField(max_length=3000, blank=True)
-    spmethods = models.ManyToManyField(SPMethods, related_name='tactics') # вот тут молодец
+    spmethods = models.ManyToManyField(SPMethods, related_name='tactics')  # вот тут молодец
+
 
 class NegativeConsequences(models.Model):
     name = models.CharField(max_length=25500)
