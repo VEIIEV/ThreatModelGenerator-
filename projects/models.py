@@ -154,6 +154,7 @@ class Projects(models.Model):
     is_cloud = models.BooleanField(null=True)
 
     violators = models.ManyToManyField(Violators)
+    violator_lvls = models.ManyToManyField(ViolatorLvls, related_name='projects')
 
     user = models.ForeignKey(User, on_delete=models.PROTECT)
 

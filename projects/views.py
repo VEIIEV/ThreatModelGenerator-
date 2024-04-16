@@ -201,6 +201,7 @@ class CreateProject(View):
                 for key in data.keys():
                     if re.search("D_", key) is not None:
                         vio_lvl = data.get(key)
+                        project.violator_lvls.add( ViolatorLvls.objects.get(lvl=vio_lvl))
                         violators = ViolatorLvls.objects.get(lvl=vio_lvl).violators.all()
                         for violator in violators:
                             project.violators.add(violator)

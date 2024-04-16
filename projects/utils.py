@@ -5,11 +5,11 @@ from pprint import pprint
 from django.db.models import Q, QuerySet
 from django.http import FileResponse
 from docx import Document
-from docx.enum.text import WD_BREAK
+from docx.enum.text import WD_BREAK, WD_PARAGRAPH_ALIGNMENT
 from docx.table import Table
 
 from projects.models import Projects, KindOfOfInfluences, ViolatorLvls, Bdus, ObjectOfInfluences, Capecs, \
-    NormativeDocuments, Components, SPMethods
+    NormativeDocuments, Components, SPMethods, Tactics
 
 
 def add_bullet_list(paragraph, is_text, list_items):
@@ -45,13 +45,14 @@ def generate_doc(project: Projects):
                             order_by('id').
                             values_list('name', flat=True))
         if '__список_СП__' in paragraph.text:
+            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
             paragraph.text = paragraph.text.replace('__список_СП__', '')
             components = project.components.all()
             smp: QuerySet = SPMethods.objects.none()
             for component in components:
                 smp = smp | component.spmethods.all()
-            smp = smp.distinct().values_list('name', flat=True)
-            add_bullet_list(paragraph, True, smp)
+            smps = smp.distinct().values_list('name', 'alias')
+            add_bullet_list(paragraph, True, [f'{smp[1]}: {smp[0]}' for smp in smps])
     # автозаполнения даты
     table = doc.tables[0]
     current_date = str(date.today())
@@ -131,9 +132,45 @@ def generate_doc(project: Projects):
                 new_row[2].text = spm
     table6 = clear_duplicate(table6)
 
-    # работа с таблицей №7  (потенциальные угрозы)
+    # работа с таблицей №7(потенциал нарушителя)
+
+    print('777777777777777777777777777777777777777777777')
+    gen_pot_bdu = generate_potential_bdus_table(project)
+    smps_set = set()
+    table7: Table = doc.tables[6]
+    for number_bdus in gen_pot_bdu:
+        for name_bdus in gen_pot_bdu[number_bdus]:
+            for vector_capec in gen_pot_bdu[number_bdus][name_bdus]:
+                for neg_con in gen_pot_bdu[number_bdus][name_bdus][vector_capec]:
+                    for violator in gen_pot_bdu[number_bdus][name_bdus][vector_capec][neg_con]:
+                        for obj_of_imp in gen_pot_bdu[number_bdus][name_bdus][vector_capec][neg_con][violator]:
+                            for component_t in gen_pot_bdu[number_bdus][name_bdus][vector_capec][neg_con][violator][
+                                obj_of_imp]:
+                                for spm_t in \
+                                        gen_pot_bdu[number_bdus][name_bdus][vector_capec][neg_con][violator][
+                                            obj_of_imp][
+                                            component_t]:
+                                    new_row = table7.add_row().cells
+                                    new_row[0].text = number_bdus
+                                    new_row[1].text = name_bdus
+                                    new_row[2].text = vector_capec
+                                    new_row[3].text = neg_con
+                                    new_row[4].text = violator
+                                    new_row[5].text = obj_of_imp
+                                    new_row[6].text = component_t
+                                    new_row[7].text = spm_t
+                                    smps_set.add(spm_t)
+    table7 = clear_duplicate(table7)
+
+    # работа с таблицей №8 (cпособы реализации и их техники)
+    print('8888888888888888888888888888888888888888888888')
+    table8: Table = doc.tables[7]
+    gen_tactics = generate_tactic_table(smps_set)
+    # работа с таблицей №9  (актуальные угрозы)
+    # todo сместить номер таблицы на +2
+
     # gen_bdu = generate_bdu_table(project)
-    # print('777777777777777777777777777777777777777777777')
+    # print('88888888888888888888888888888888888888888888')
     # table7: Table = doc.tables[6]
     # for number_ugroz in gen_bdu:
     #     print(number_ugroz)
@@ -170,6 +207,7 @@ def clear_duplicate(table):
         if table.cell(row, 0).text != temp:
             listok.clear()
             temp = table.cell(row, 0).text
+            print(temp)
         for col in range(col_count):
             if table.cell(row, col).text in listok:
                 table.cell(row, col).text = ""
@@ -180,6 +218,22 @@ def clear_duplicate(table):
             if table.cell(row, col).text == '':
                 table.cell(row - 1, col).merge(table.cell(row, col))
     return table
+
+
+def generate_tactic_table(smps: set[str]):
+    smps = sorted(smps)
+    result = {}
+    for smp in smps:
+        smp = SPMethods.objects.get(alias=smp)
+        tactics = smp.tactics.all()
+        if tactics.exists():
+            for tactic in tactics:
+                if smp.alias in result:
+                    temp = result[smp.alias]
+                    result.update({smp.alias: temp | {tactic.alias: [tactic.name]}})
+                else:
+                    result[smp.alias] = {tactic.alias: [tactic.name]}
+    return result
 
 
 def generate_sp_methods_table(project):
@@ -205,7 +259,6 @@ def generate_sp_methods_table(project):
                     table.update({f'{obj.name} ({obj.alias})': temp | {component.name: [spm_name]}})
                 else:
                     table[f'{obj.name} ({obj.alias})'] = {component.name: [spm_name]}
-    pprint(table)
 
     # todo создать excel файл и вернуть его
     return table
@@ -219,7 +272,7 @@ def genereate_neg_con_table(project: Projects):
             table[neg_con.type].append(neg_con.name)
         else:
             table[neg_con.type] = [neg_con.name]
-    pprint(table)
+    # pprint(table)
 
     # todo создать excel файл и вернуть его
     return table
@@ -249,7 +302,7 @@ def generate_obj_inf_table(project: Projects):
                 'нет потенциальных объектов воздействия': 'воздействие отсутствует'}
 
             # todo создать excel файл и вернуть его
-    print(table)
+    # print(table)
     return table
 
 
@@ -271,7 +324,7 @@ def generate_violators_type_table(project: Projects):
             else:
                 table[violator.name] = {type: violator.motives}
     # todo создать excel файл и вернуть его
-    pprint(table)
+    # pprint(table)
     return table
 
 
@@ -295,7 +348,7 @@ def generate_violators_potential_table(project: Projects):
                 else:
                     table[lvl.name] = {violator.name: potential}
     # todo создать excel файл и вернуть его
-    pprint(table)
+    # pprint(table)
     return table
 
 
@@ -361,6 +414,81 @@ def generate_bdu_table(project: Projects):
     # todo создать excel файл и вернуть его
 
     pprint(table)
+    return table
+
+
+def generate_potential_bdus_table(project: Projects):
+    '''
+       эта таблица не уместится в обычном варианте ворда,
+       лист нужно будет развернуть горизонтально что бы она поместилась хоть как-то
+       и придётся уменьшить шрифт для неё
+       :param project:
+       :return:
+       '''
+    # номер угрозы, название, вектор капек, нег пос,нарушитель, объект воздействия, компонент, способ реализации
+    table = {}
+    correct_obj_list = project.object_inf.all()
+
+    bdus: QuerySet[Bdus] = form_bdus_list_for(project).order_by('id').all()
+    # Bdus.objects.all()
+    bdus.all()
+    for bdu in bdus:
+        capecs: QuerySet[Capecs] = bdu.capecs.all()
+        for capec in capecs:
+            number = f"УБИ.{bdu.id}"
+
+            # формирование цепочки капек от родителя до текущего
+            cpc = form_capec_vector_for(capec)
+
+            # нег взять дискрипшион  обрезать строку "Угроза заключается в возможности"
+            # включительно убрать _x000D и всё что после
+            neg_con = bdu.description.replace("Угроза заключается в возможности", '')
+            neg_con = neg_con.replace(r'_x000D*', '')
+            neg_con = re.sub('(_x000D).*', '', neg_con, re.DOTALL).split('\n', 1)[0]
+            violator = bdu.violator
+            violator_dict = {}
+            obj_of_infs: QuerySet[ObjectOfInfluences] = bdu.bdus.all() & correct_obj_list
+            if obj_of_infs.exists():
+                obj_of_infs_dict = {}
+                for obj_of_inf in obj_of_infs:
+                    components = obj_of_inf.components.all() & project.components.all()
+                    if components.exists():
+                        components_dict = {}
+                        for component in components:
+                            spms = component.spmethods.all()
+                            # подвязка сп к компоненту
+                            if spms.exists():
+                                for spm in spms:
+                                    if component.alias in components_dict:
+                                        # возможный проёб
+                                        components_dict[component.alias].append(spm.alias)
+                                    else:
+                                        components_dict[component.alias] = [spm.alias]
+                            else:
+                                components_dict[component.alias] = ['нет способов реализации']
+
+                            # подвязка компонента к объекту
+                            if obj_of_inf.alias in obj_of_infs_dict:
+                                temp = obj_of_infs_dict[obj_of_inf.alias]
+                                obj_of_infs_dict.update({obj_of_inf.alias: temp | components_dict})
+                            else:
+                                obj_of_infs_dict[obj_of_inf.alias] = components_dict
+                    else:
+                        obj_of_infs_dict[obj_of_inf.alias] = {'компоненты отсутствуют': ['нет способов реализации']}
+                violator_dict[violator] = obj_of_infs_dict
+            else:
+                violator_dict[violator] = {
+                    'объекты отсутствуют': {'компоненты отсутствуют': ['нет способов реализации']}}
+            neg_con_dict = {neg_con: violator_dict}
+            cpc_dict = {cpc: neg_con_dict}
+            if number in table:
+                temp = table[number]
+                table.update({number: temp | {bdu.name: cpc_dict}})
+            else:
+                table[number] = {bdu.name: cpc_dict}
+    # todo создать excel файл и вернуть его
+
+    # pprint(table)
     return table
 
 
