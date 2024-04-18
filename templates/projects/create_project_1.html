@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+    <script src="{% static 'projects/scripts.js' %}" defer></script>
 </head>
 <body>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
@@ -39,12 +41,17 @@
         {% endif %}
           {% endfor %}
     -->
-    <p>ответственное лицо</p>
-    <p>имя</p>
-    <input type="text" name="rperson_name" placeholder="{{ rp.name }}">
-    <p>должность</p>
-    <input type="text" name="appointment" placeholder="{{ rp.appointment }}"/>
+    <p>ответственные лица</p>
+    <div id="rperson_div">
+        <p>имя</p>
+        <input type="text" name="rperson_name" placeholder="{{ rp.name }}">
+        <p>должность</p>
+        <input type="text" name="appointment" placeholder="{{ rp.appointment }}"/>
+        <input type="button" id="addRPerson" value="add person"/><br/>
+    </div>
     <p><input type="submit" value="Create"></p>
 </form>
+
+
 </body>
 </html>
