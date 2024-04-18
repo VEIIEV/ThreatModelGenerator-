@@ -229,4 +229,4 @@ class RPersons(models.Model):
     """Ответственные за проект"""
     name = models.CharField(max_length=255)
     appointment = models.CharField(max_length=255)
-    projects = models.ForeignKey(Projects, on_delete=models.PROTECT, null=True, related_name='r_persons')
+    projects = models.ForeignKey(Projects, on_delete=models.CASCADE, null=True, related_name='r_persons')

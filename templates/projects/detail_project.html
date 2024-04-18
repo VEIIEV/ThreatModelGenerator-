@@ -10,7 +10,8 @@
 <p>Выгрузить проект</p>
 <a href="{% url 'projects:Download' %}">Скачать</a>
 <p> id проекта -{{ project.id }}</p>
-<p>стадния проекта - {{ project.stage }}/7</p>
+<p>стадния проекта - {{ project.stage }}/8</p>
 <a href="{% url 'projects:CreateProject' %}?id={{ project.id }}&stage={{ project.stage }}">редактировать</a>
+<a href="{% url 'projects:delete_project' %}?id={{ project.id }}">удалить</a>
 </body>
 </html>

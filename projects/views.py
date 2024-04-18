@@ -1,7 +1,7 @@
 import re
 from datetime import date
 from django.http import FileResponse, HttpResponseBadRequest
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import os
 import pandas as pd
 import xlwt
@@ -264,6 +264,14 @@ class ChooseSystemLvl(View):
 
             case 'ISP':
                 pass
+
+
+@login_required(login_url='profils:logun_users')
+def delete_project(request: HttpRequest):
+    project_id = request.GET.get('id')
+    project = Projects.objects.get(id=project_id)
+    project.delete()
+    return redirect('projects:projects')
 
 
 @login_required(login_url='profils:logun_users')
