@@ -108,10 +108,17 @@ class CreateProject(View):
             # todo в темплейте реализовать возможность создания нескольких ответственных лиц
             # todo не помечается не выбранные результаты
             case '1':
-                r_person = RPersons.objects.create(name=request.POST['rperson_name'],
-                                                   appointment=request.POST['appointment'],
-                                                   projects=project)
-                project.r_persons.add(r_person)
+                names = []
+                appointments = []
+                for key, value in request.POST.items():
+                    if re.search("rperson_name", key) is not None:
+                        names.append(value)
+                    if re.search("appointment", key) is not None:
+                        appointments.append(value)
+                for n, a in zip(names, appointments):
+                    r_person = RPersons.objects.create(name=n, appointment=a, projects=project)
+                    project.r_persons.add(r_person)
+
                 project.name_project = request.POST['name_project']
                 project.stage = 2
                 project.save()
@@ -335,6 +342,4 @@ def test_bd(request):
 
 
 def test(request):
-    project = Projects.objects.get(name_project='хуй')
-    table = generate_bdu_table(project)
-    return HttpResponse(status=200, content=table.items())
+    return render(request, '../templates/projects/test.html')

@@ -181,6 +181,7 @@ class Projects(models.Model):
                 self.object_inf.clear()
                 self.components.clear()
                 self.negative_consequences.clear()
+                RPersons.objects.filter(projects=self).delete()
                 self.system_lvl = None
                 self.type = None
                 self.stage = 1
