@@ -139,10 +139,8 @@ class CreateProject(View):
                                        'negative_consequences': NegativeConsequences.objects.all()})
             case '4':
                 data = QueryDict(request.body)
-                for key in data.keys():
-                    if key == 'csrfmiddlewaretoken':
-                        continue
-                    np_id = data.get(key)
+                ids = data.getlist('options')
+                for np_id in ids:
                     neg_p = NegativeConsequences.objects.get(id=int(np_id))
                     project.negative_consequences.add(neg_p)
                     # project.save()

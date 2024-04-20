@@ -30,7 +30,7 @@
 <form action="{% url 'projects:CreateProject' %}?stage=1&id={{ project.id }}" method="post">
     {% csrf_token %}
     <p>название проекта</p>
-    <input type="text" name="name_project" value="{{ project.name_project }}" placeholder="{{ project.name_project }}">
+    <input type="text" name="name_project" value="{{ project.name_project }}" placeholder="{{ project.name_project }} required">
 
     {% if project.r_persons.all %}
         <p>на данный момент за проектом значатся</p>
@@ -43,9 +43,9 @@
     <p>ответственные лица</p>
     <div id="rperson_div">
         <p>имя</p>
-        <input type="text" name="rperson_name" placeholder="{{ rp.name }}">
+        <input type="text" name="rperson_name" placeholder="{{ rp.name }}" required>
         <p>должность</p>
-        <input type="text" name="appointment" placeholder="{{ rp.appointment }}"/>
+        <input type="text" name="appointment" placeholder="{{ rp.appointment }}" required/>
         <input type="button" id="addRPerson" value="add person"/><br/>
     </div>
     <p><input type="submit" value="Create"></p>

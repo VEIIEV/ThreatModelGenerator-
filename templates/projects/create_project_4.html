@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+    <script src="{% static 'projects/check_box_val.js' %}" defer></script>
+
 </head>
 <body>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
@@ -31,18 +34,13 @@
     <p>Выберите негативные последствия</p>
 
     {% for nc in negative_consequences %}
-        <div>
-            <p>
-                <label for="{{ nc.id }}">{{ nc.name }}</label>
-                <input type="checkbox" id="{{ nc.id }}" value="{{ nc.id }}"
-                       {% if nc.id in ncs %}checked  {% endif %}
-                       name="{{ nc.name }}">
-            </p>
-        </div>
+        <label for="{{ nc.id }}">{{ nc.name }}</label>
+        <input type="checkbox" id="{{ nc.id }}" value="{{ nc.id }}"
+               {% if nc.id in ncs %}checked  {% endif %}
+               name="options">
+        <br>
     {% endfor %}
-
-
-    <p><input type="submit" value="Create"></p>
+    <input type="submit" value="Create">
 </form>
 
 </body>
