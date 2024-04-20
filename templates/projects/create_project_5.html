@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+    <script src="{% static 'projects/check_box_val.js' %}" defer></script>
 </head>
 <body>
 <a href="{% url 'profils:rend_glavn' %}">На главную</a>
@@ -32,12 +34,11 @@
 
     {% for ob in objs %}
         <div>
-            <p>
                 <label for="{{ ob.id }}">{{ ob.name }}</label>
                 <input type="checkbox" id="{{ ob.id }}" value="{{ ob.id }}"
                         {% if ob.id in ob_ids %} checked {% endif %}
-                       name="D_{{ ob.name }}">
-            </p>
+                       name="options">
+                <br>
         </div>
     {% endfor %}
 
@@ -51,7 +52,7 @@
         </p>
     {% endfor %}
 
-    <p><input type="submit" value="Create"></p>
+    <input type="submit" value="Create">
 </form>
 
 </body>

@@ -161,18 +161,16 @@ class CreateProject(View):
             case '5':
                 # TODO должно быть выбрано хотя бы 1 обязательное поле
                 data = QueryDict(request.body)
+                ids = data.getlist('options')
                 print(data)
 
                 # мне нужно параллельно составить словарь где ключ объект, значение список компонентов
                 object_to_response = {}
-                for key in data.keys():
-                    if re.search("D_", key) is not None:
-                        # внесение в базу
-                        obj_id = data.get(key)
-                        obj = ObjectOfInfluences.objects.get(id=int(obj_id))
-                        project.object_inf.add(obj)
-                        # составление списка компонентов для респонса
-                        object_to_response[obj.name] = obj.components.all()
+                for obj_id in ids:
+                    obj = ObjectOfInfluences.objects.get(id=int(obj_id))
+                    project.object_inf.add(obj)
+                    # составление списка компонентов для респонса
+                    object_to_response[obj.name] = obj.components.all()
 
                 project.is_grid = True if ("A_grid system" in data) else False
                 project.is_virtual = True if ("A_virtual system" in data) else False
@@ -201,14 +199,13 @@ class CreateProject(View):
 
             case '7':
                 data = QueryDict(request.body)
+                ids = data.getlist('options')
                 print(data)
-                for key in data.keys():
-                    if re.search("D_", key) is not None:
-                        vio_lvl = data.get(key)
-                        project.violator_lvls.add(ViolatorLvls.objects.get(lvl=vio_lvl))
-                        violators = ViolatorLvls.objects.get(lvl=vio_lvl).violators.all()
-                        for violator in violators:
-                            project.violators.add(violator)
+                for vio_lvl in ids:
+                    project.violator_lvls.add(ViolatorLvls.objects.get(lvl=vio_lvl))
+                    violators = ViolatorLvls.objects.get(lvl=vio_lvl).violators.all()
+                    for violator in violators:
+                        project.violators.add(violator)
                 project.stage = 8
                 project.save()
 
