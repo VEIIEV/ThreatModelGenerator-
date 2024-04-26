@@ -165,7 +165,7 @@ def generate_doc(project: Projects):
                                     new_row[7].text = spm_t
                                     bdus_set.add((number_bdus, spm_t))
                                     smps_set.add(spm_t)
-    # table7 = clear_duplicate(table7)
+    table7 = clear_duplicate(table7)
 
     # работа с таблицей №8 (cпособы реализации и их техники)
     print('8888888888888888888888888888888888888888888888')
@@ -192,32 +192,12 @@ def generate_doc(project: Projects):
                 new_row[1].text = tactic_alias
                 new_row[2].text = verdict
     table9 = clear_duplicate(table9)
-
-    # gen_bdu = generate_bdu_table(project)
-    # print('88888888888888888888888888888888888888888888')
-    # table7: Table = doc.tables[6]
-    # for number_ugroz in gen_bdu:
-    #     print(number_ugroz)
-    #     for name_ugroz in gen_bdu[number_ugroz]:
-    #         for uyazvimost in gen_bdu[number_ugroz][name_ugroz]:
-    #             for vectorCapec in gen_bdu[number_ugroz][name_ugroz][uyazvimost]:
-    #                 for negativ in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec]:
-    #                     for object in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ]:
-    #                         for tn in gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object]:
-    #                             new_row = table7.add_row().cells
-    #                             new_row[0].text = number_ugroz
-    #                             new_row[1].text = name_ugroz
-    #                             new_row[2].text = uyazvimost
-    #                             new_row[3].text = vectorCapec
-    #                             new_row[4].text = negativ
-    #                             new_row[5].text = object
-    #                             new_row[6].text = tn
-    #                             new_row[7].text = \
-    #                                 gen_bdu[number_ugroz][name_ugroz][uyazvimost][vectorCapec][negativ][object][tn]
-    # table7 = clear_duplicate(table7)
-    filepath = 'новое_имя_файла.docx'
+    filepath = f'docs/project_{project.id}.docx'
+    project.doc= filepath
+    project.save()
     doc.save(filepath)
-    return filepath
+    print('****************************************')
+    print('файл сформирован')
 
 
 def clear_duplicate(table):

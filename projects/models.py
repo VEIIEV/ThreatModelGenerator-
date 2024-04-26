@@ -162,6 +162,10 @@ class Projects(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.PROTECT)
 
+    # None, 'loading', filepath
+    doc = models.CharField(max_length=20000, null=True, blank=True)
+
+
     # def __str__(self):
     #     return f"{self.protection_class} {self.is_virtual_tech}"
 
@@ -184,6 +188,7 @@ class Projects(models.Model):
                 RPersons.objects.filter(projects=self).delete()
                 self.system_lvl = None
                 self.type = None
+                self.doc = None
                 self.stage = 1
                 self.save()
             case 2:
@@ -192,6 +197,7 @@ class Projects(models.Model):
                 self.components.clear()
                 self.negative_consequences.clear()
                 self.system_lvl = None
+                self.doc = None
                 self.stage = 2
                 self.save()
             case 3:
@@ -199,6 +205,7 @@ class Projects(models.Model):
                 self.object_inf.clear()
                 self.components.clear()
                 self.negative_consequences.clear()
+                self.doc = None
                 self.stage = 3
                 self.save()
             case 4:
@@ -206,21 +213,25 @@ class Projects(models.Model):
                 self.object_inf.clear()
                 self.components.clear()
                 self.negative_consequences.clear()
+                self.doc = None
                 self.stage = 4
                 self.save()
             case 5:
                 self.violators.clear()
                 self.object_inf.clear()
                 self.components.clear()
+                self.doc = None
                 self.stage = 5
                 self.save()
             case 6:
                 self.violators.clear()
                 self.components.clear()
+                self.doc = None
                 self.stage = 6
                 self.save()
             case 7:
                 self.violators.clear()
+                self.doc = None
                 self.stage = 7
                 self.save()
 

@@ -16,6 +16,7 @@ from docx.table import Table
 from profils.models import User
 from .models import Projects, Capecs, Bdus, RPersons, NegativeConsequences, ObjectOfInfluences, Violators, ViolatorLvls, \
     Components
+from .tasks import celery_generate_doc
 from .utils import genereate_neg_con_table, generate_obj_inf_table, generate_violators_type_table, \
     generate_violators_potential_table, form_bdus_list_for, generate_bdu_table, generate_doc
 
@@ -291,12 +292,21 @@ def Show_Projects(request, id):
     return render(request, '../templates/projects/detail_project.html', data)
 
 
-def Download_Project(request: HttpRequest):
+def download_project(request: HttpRequest):
     project = Projects.objects.get(id=request.GET.get('id'))
-    word_file_path = generate_doc(project)
+
+    word_file_path = project.doc
     response = FileResponse(open(word_file_path, 'rb'))
     response['Content-Disposition'] = 'attachment; filename="новое_имя_файла.docx"'
     return response
+
+
+def generate_project(request: HttpRequest):
+    project = Projects.objects.get(id=request.GET.get('id'))
+    project.doc = 'loading'
+    project.save()
+    celery_generate_doc.delay(project.id)
+    return render(request, '../templates/projects/create_project_8.html', context={'project': project})
 
 
 # todo вынести в отдельное  апи приложение

@@ -13,7 +13,8 @@
             {% if request.GET.stage == i %}
                 <li>{{ i }} - вы сейчас тут</li>
             {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный этап</a></li>
+                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
+                    этап</a></li>
             {% elif project.stage|slugify  < i %}
                 <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
             {% else %}
@@ -23,16 +24,30 @@
     {% endwith %}
 </ul>
 
-
+<!--
 <form action="{% url 'projects:CreateProject' %}?stage=8&id={{ project.id }}" method="post">
 
     {% csrf_token %}
-   
-    <!-- кнопка выгрузки файла  -->
-    кнопка выгрузки файла
-    <a href="{% url 'projects:Download' %}?id={{ project.id }}">Скачать</a>
     <p><input type="submit" value="Create"></p>
 </form>
+-->
+
+<!-- кнопка генерации файла-->
+{% if project.doc == None %}
+    <a href="{% url 'projects:generate_project' %}?id={{ project.id }}">сгенерировать файл</a>
+{% elif project.doc == 'loading' %}
+    <p>файл генерируется пожалуйста подождите</p>
+{% else %}
+    <p>файл создан и доступен для установки</p>
+{% endif %}
+
+<!-- кнопка выгрузки файла  -->
+кнопка выгрузки файла
+{% if project.doc != None and project.doc != 'loading' %}
+    <a href="{% url 'projects:download_project' %}?id={{ project.id }}">Скачать</a>
+{% else %}
+    <p> файл не готов</p>
+{% endif %}
 
 </body>
 </html>
