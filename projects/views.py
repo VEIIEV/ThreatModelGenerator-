@@ -303,10 +303,11 @@ def download_project(request: HttpRequest):
 
 def generate_project(request: HttpRequest):
     project = Projects.objects.get(id=request.GET.get('id'))
-    project.doc = 'loading'
-    project.save()
-    celery_generate_doc.delay(project.id)
-    return render(request, '../templates/projects/create_project_8.html', context={'project': project})
+    if project.doc is None:
+        project.doc = 'loading'
+        project.save()
+        celery_generate_doc.delay(project.id)
+    return render(request, '../templates/projects/detail_project.html', context={'project': project})
 
 
 # todo вынести в отдельное  апи приложение
