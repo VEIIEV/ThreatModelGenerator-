@@ -20,10 +20,10 @@
                 {% for component in components %}
                     <div>
                         <p>
-                            <label for="{{ component.id }}">{{ component.name }}</label>
                             <input type="checkbox" id="{{ component.id }}" value="{{ component.id }}"
                                     {% if component.id in component_ids %} checked {% endif %}
                                    name="D_{{ component.name }}">
+                            <label for="{{ component.id }}">{{ component.name }}</label>
                         </p>
                     </div>
                 {% endfor %}

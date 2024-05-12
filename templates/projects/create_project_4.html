@@ -8,7 +8,7 @@
 
 </head>
 <body>
-{%  include 'projects/nav_bar.html' %}
+{% include 'projects/nav_bar.html' %}
 
 
 <form action="{% url 'projects:CreateProject' %}?stage=4&id={{ project.id }}" method="post">
@@ -17,10 +17,10 @@
     <p>Выберите негативные последствия</p>
 
     {% for nc in negative_consequences %}
-        <label for="{{ nc.id }}">{{ nc.name }}</label>
         <input type="checkbox" id="{{ nc.id }}" value="{{ nc.id }}"
                {% if nc.id in ncs %}checked  {% endif %}
                name="options">
+        <label for="{{ nc.id }}">{{ nc.name }}</label>
         <br>
     {% endfor %}
     <input type="submit" value="Далее">

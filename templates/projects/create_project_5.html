@@ -7,7 +7,7 @@
     <script src="{% static 'projects/check_box_val.js' %}" defer></script>
 </head>
 <body>
-{%  include 'projects/nav_bar.html' %}
+{% include 'projects/nav_bar.html' %}
 
 
 <form action="{% url 'projects:CreateProject' %}?stage=5&id={{ project.id }}" method="post">
@@ -17,11 +17,11 @@
 
     {% for ob in objs %}
         <div>
-                <label for="{{ ob.id }}">{{ ob.name }}</label>
-                <input type="checkbox" id="{{ ob.id }}" value="{{ ob.id }}"
-                        {% if ob.id in ob_ids %} checked {% endif %}
-                       name="options">
-                <br>
+            <input type="checkbox" id="{{ ob.id }}" value="{{ ob.id }}"
+                    {% if ob.id in ob_ids %} checked {% endif %}
+                   name="options">
+            <label for="{{ ob.id }}">{{ ob.name }}</label>
+            <br>
         </div>
     {% endfor %}
 
@@ -29,9 +29,10 @@
     <p>укажити дополнительные модификаторы(опционально)</p>
     {% for key, value in add_options.items %}
         <p>
-            <label for="{{ key|slice:"3:" }}">{{ key|slice:"3:" }} system</label>
+
             <input type="checkbox" id={{ key|slice:"3:" }}
                     {% if value %}checked{% endif %} name="A_{{ key|slice:"3:" }} system">
+            <label for="{{ key|slice:"3:" }}">{{ key|slice:"3:" }} system</label>
         </p>
     {% endfor %}
 

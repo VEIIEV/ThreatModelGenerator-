@@ -16,10 +16,9 @@
     <p>выберети нарушителей</p>
 
     {% for violator in violators %}
-        <label for="{{ violator.lvl }}">{{ violator.name }}</label>
         <input type="checkbox" id="{{ violator.lvl }}" value="{{ violator.lvl }}"
                {% if violator.name in v_lvl_names %}checked{% endif %} name="options">
-        <br>
+        <label for="{{ violator.lvl }}">{{ violator.name }}</label><br>
     {% endfor %}
     <p><input type="submit" value="Далее"></p>
 </form>
