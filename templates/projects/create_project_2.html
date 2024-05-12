@@ -5,24 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-<a href="{% url 'profils:rend_glavn' %}">На главную</a>
-
-<ul>
-    {% with '1 2 3 4 5 6 7 8' as list %}
-        {% for i in list.split %}
-            {% if request.GET.stage == i %}
-                <li>{{ i }} - вы сейчас тут</li>
-            {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
-                    этап</a></li>
-            {% elif project.stage|slugify  < i %}
-                <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
-            {% else %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }}</a></li>
-            {% endif %}
-        {% endfor %}
-    {% endwith %}
-</ul>
+{%  include 'projects/nav_bar.html' %}
 
 
 {% if project.type is not None %}
@@ -37,7 +20,7 @@
             <option value="{{ key }}" {% if project.type == key %} selected {% endif %}>{{ value }}</option>
         {% endfor %}
     </select>
-    <p><input type="submit" value="Create"></p>
+    <p><input type="submit" value="Далее"></p>
 </form>
 
 </body>

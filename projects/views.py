@@ -29,6 +29,15 @@ class CreateProject(View):
                    "ISP": "Информационная система пресональных данных",
                    "KII": "Объект критической информакционной инфраструктуры"}
 
+    stages_names = {'1': "Наименование Проекта",
+                    '2': "Тип системы",
+                    '3': "Уровень системы",
+                    '4': "Негативные последствия",
+                    '5': "Объект воздействия",
+                    '6': "Компонент воздействия",
+                    '7': "Тип нарушителя",
+                    '8': "Генерация отчёта"}
+
     def get(self, request: HttpRequest):
         stage = request.GET.get('stage')
         project_id = request.GET.get('id')
@@ -40,21 +49,21 @@ class CreateProject(View):
             case None:
                 project = Projects.objects.create(user=request.user)
                 project.save()
-                return render(request, '../templates/projects/create_project_1.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_1.html', context={'project': project, 'stages_names': self.stages_names})
             case '1':
-                return render(request, '../templates/projects/create_project_1.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_1.html', context={'project': project, 'stages_names': self.stages_names})
             case '2':
                 return render(request, '../templates/projects/create_project_2.html',
                               context={'project': project,
-                                       'system_type': self.system_type})
+                                       'system_type': self.system_type, 'stages_names': self.stages_names})
             case '3':
-                return render(request, '../templates/projects/create_project_3.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_3.html', context={'project': project, 'stages_names': self.stages_names})
             case '4':
                 ncs = project.negative_consequences.values_list('id', flat=True)
                 return render(request, '../templates/projects/create_project_4.html',
                               context={'project': project,
                                        'negative_consequences': NegativeConsequences.objects.all(),
-                                       'ncs': ncs})
+                                       'ncs': ncs, 'stages_names': self.stages_names})
             case '5':
                 ob_ids = project.object_inf.values_list('id', flat=True)
 
@@ -68,7 +77,7 @@ class CreateProject(View):
                               context={'project': project,
                                        'objs': ObjectOfInfluences.objects.all().order_by('id'),
                                        'ob_ids': ob_ids,
-                                       'add_options': add_options})
+                                       'add_options': add_options, 'stages_names': self.stages_names})
             case '6':
                 object_to_response = {}
                 for obj in project.object_inf.all():
@@ -77,7 +86,7 @@ class CreateProject(View):
                 return render(request, '../templates/projects/create_project_6.html',
                               context={'project': project,
                                        'objects': object_to_response,
-                                       'component_ids': component_ids})
+                                       'component_ids': component_ids, 'stages_names': self.stages_names})
 
             case '7':
 
@@ -85,12 +94,12 @@ class CreateProject(View):
                 return render(request, '../templates/projects/create_project_7.html',
                               context={'project': project,
                                        'violators': ViolatorLvls.objects.all(),
-                                       'v_lvl_names': v_lvl_names})
+                                       'v_lvl_names': v_lvl_names, 'stages_names': self.stages_names})
             case '8':
 
                 # todo добавить кнопку для выгрузки каждой таблице отдельно как excel
                 # todo добавить кнопку для выгрузки всего ворд документа
-                return render(request, '../templates/projects/create_project_8.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_8.html', context={'project': project, 'stages_names': self.stages_names})
 
     def post(self, request: HttpRequest):
 
@@ -123,21 +132,21 @@ class CreateProject(View):
                 project.name_project = request.POST['name_project']
                 project.stage = 2
                 project.save()
-                return render(request, '../templates/projects/create_project_2.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_2.html', context={'project': project, 'stages_names': self.stages_names})
             case '2':
                 project.type = request.POST['type']
                 project.stage = 3
                 project.save()
                 return render(request, '../templates/projects/create_project_3.html',
                               context={'project': project,
-                                       'system_type': self.system_type})
+                                       'system_type': self.system_type, 'stages_names': self.stages_names})
             case '3':
                 project.system_lvl = request.POST['system_lvl']
                 project.stage = 4
                 project.save()
                 return render(request, '../templates/projects/create_project_4.html',
                               context={'project': project,
-                                       'negative_consequences': NegativeConsequences.objects.all()})
+                                       'negative_consequences': NegativeConsequences.objects.all(), 'stages_names': self.stages_names})
             case '4':
                 data = QueryDict(request.body)
                 ids = data.getlist('options')
@@ -157,7 +166,7 @@ class CreateProject(View):
                 return render(request, '../templates/projects/create_project_5.html',
                               context={'project': project,
                                        'objs': ObjectOfInfluences.objects.all().order_by('id'),
-                                       'add_options': add_options})
+                                       'add_options': add_options, 'stages_names': self.stages_names})
                 pass
             case '5':
                 # TODO должно быть выбрано хотя бы 1 обязательное поле
@@ -182,7 +191,7 @@ class CreateProject(View):
 
                 return render(request, '../templates/projects/create_project_6.html',
                               context={'project': project,
-                                       'objects': object_to_response, })
+                                       'objects': object_to_response, 'stages_names': self.stages_names })
 
             case '6':
                 data = QueryDict(request.body)
@@ -196,7 +205,7 @@ class CreateProject(View):
                 project.save()
                 return render(request, '../templates/projects/create_project_7.html',
                               context={'project': project,
-                                       'violators': ViolatorLvls.objects.all()})
+                                       'violators': ViolatorLvls.objects.all(), 'stages_names': self.stages_names})
 
             case '7':
                 data = QueryDict(request.body)
@@ -210,7 +219,7 @@ class CreateProject(View):
                 project.stage = 8
                 project.save()
 
-                return render(request, '../templates/projects/create_project_8.html', context={'project': project})
+                return render(request, '../templates/projects/create_project_8.html', context={'project': project, 'stages_names': self.stages_names})
             case '8':
                 # todo дело сделано, показываем итог и выгружаем док
                 response = generate_doc(project)

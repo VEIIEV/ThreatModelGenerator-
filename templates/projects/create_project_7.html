@@ -7,24 +7,8 @@
     <script src="{% static 'projects/check_box_val.js' %}" defer></script>
 </head>
 <body>
-<a href="{% url 'profils:rend_glavn' %}">На главную</a>
+{%  include 'projects/nav_bar.html' %}
 
-<ul>
-    {% with '1 2 3 4 5 6 7 8' as list %}
-        {% for i in list.split %}
-            {% if request.GET.stage == i %}
-                <li>{{ i }} - вы сейчас тут</li>
-            {% elif project.stage|slugify  == i %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }} - актуальный
-                    этап</a></li>
-            {% elif project.stage|slugify  < i %}
-                <li><p>{{ i }}, данный этап не доступен на данный момент</p></li>
-            {% else %}
-                <li><a href="{% url 'projects:CreateProject' %}?stage={{ i }}&id={{ project.id }}">{{ i }}</a></li>
-            {% endif %}
-        {% endfor %}
-    {% endwith %}
-</ul>
 
 <form action="{% url 'projects:CreateProject' %}?stage=7&id={{ project.id }}" method="post">
 
@@ -37,7 +21,7 @@
                {% if violator.name in v_lvl_names %}checked{% endif %} name="options">
         <br>
     {% endfor %}
-    <p><input type="submit" value="Create"></p>
+    <p><input type="submit" value="Далее"></p>
 </form>
 
 </body>

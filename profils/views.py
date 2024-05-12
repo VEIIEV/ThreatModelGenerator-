@@ -1,17 +1,13 @@
-import xlwt
 from django.contrib.auth.models import User
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import path
 from django.views import View
-from django.views.generic import ListView
-from projects.models import Projects
-from .models import User
+
 from projects.models import NegativeConsequences
-from . import views
-from django.contrib.auth import views as auth_views, login, authenticate, logout
+from .models import User
 
 
 def Render_Main(request):
@@ -26,6 +22,7 @@ def Render_glavn(request):
 class UserLoginView(View):
 
     def post(self, request):
+        a = HttpResponse()
         user = authenticate(username=request.POST['login'], password=request.POST['password'])
         if user:
             login(request, user)
