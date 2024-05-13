@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     {% load static %}
+    <link rel="stylesheet" href="{% static 'projects/test.css' %}">
     <script src="{% static 'projects/check_box_val.js' %}" defer></script>
 
 </head>
@@ -11,20 +12,26 @@
 {% include 'projects/nav_bar.html' %}
 
 
+<p>Выберите негативные последствия</p>
 <form action="{% url 'projects:CreateProject' %}?stage=4&id={{ project.id }}" method="post">
+    <div class="wrapper">
+        <div>
+            {% csrf_token %}
 
-    {% csrf_token %}
-    <p>Выберите негативные последствия</p>
-
-    {% for nc in negative_consequences %}
-        <input type="checkbox" id="{{ nc.id }}" value="{{ nc.id }}"
-               {% if nc.id in ncs %}checked  {% endif %}
-               name="options">
-        <label for="{{ nc.id }}">{{ nc.name }}</label>
-        <br>
-    {% endfor %}
-    <input type="submit" value="Далее">
+            {% for nc in negative_consequences %}
+                <div class="wrapper">
+                    <input type="checkbox" id="{{ nc.id }}" value="{{ nc.id }}"
+                           {% if nc.id in ncs %}checked  {% endif %}
+                           name="options">
+                    <label for="{{ nc.id }}">{{ nc.name }}</label>
+                    <br>
+                </div>
+            {% endfor %}
+            <input type="submit" value="Далее">
+        </div>
+    </div>
 </form>
+
 
 </body>
 </html>
