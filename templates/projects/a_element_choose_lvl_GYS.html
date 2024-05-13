@@ -1,15 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<a href="{% url 'profils:rend_glavn' %}">На главную</a>
-
-
-<p> Определение класс защищённости</p>
-
 <form action="{% url 'projects:ChooseSystemLvl' %}?stage=3&id={{ project.id }}" method="post">
 
     {% csrf_token %}
@@ -36,13 +24,10 @@
 
     <p title=" бла бла">Укажите масштаб информационной системы:</p>
     <select id='scope' name='scope'>
-        <option value=1>федеральный</option>
+        <option value=1>объектовый</option>
         <option value=2>региональный</option>
-        <option value=3>объектовый</option>
+        <option value=3>федеральный</option>
     </select>
 
     <p><input type="submit" value="Create"></p>
 </form>
-
-</body>
-</html>

@@ -1,0 +1,19 @@
+
+<form action="{% url 'projects:CreateProject' %}?stage=3&id={{ project.id }}" method="post">
+
+    {% csrf_token %}
+    {% if project.type == 'GYS' %}
+        <p>Выберите класса защищенности информационной системы</p>
+    {% elif project.type == 'ISP' %}
+        <p>Выберите класса категорию значимости</p>
+    {% elif project.type == 'KII' %}
+        <p>Выберите уровень защищённости</p>
+    {% endif %}
+    <select name="system_lvl">
+        <option value="" selected disabled hidden>Choose here</option>
+        {% for i in '123'|make_list %}
+            <option value={{ i }} {% if project.system_lvl|slugify   == i %} selected {% endif %}>{{ i }}</option>
+        {% endfor %}
+    </select>
+    <p><input type="submit" value="Далее"></p>
+</form>
