@@ -20,7 +20,7 @@ class Violators(models.Model):
     Возможные цели (мотивация) реализации угроз безопасности информации,
     (см методику от 05.02.2021 приложение 8,9)"""
     name = models.CharField(max_length=255)
-    lvl = models.ForeignKey(ViolatorLvls, on_delete=models.PROTECT, related_name='violators')
+    lvl = models.ForeignKey(ViolatorLvls, on_delete=models.CASCADE, related_name='violators')
     type = models.IntegerField()
     potential = models.IntegerField()
     motives = models.CharField(max_length=3000, blank=True, null=True)
@@ -176,6 +176,12 @@ class Projects(models.Model):
         violators = set()
         for violator in self.violators.all():
             violators.add(violator.lvl.name)
+        return violators
+
+    def get_violator_names(self):
+        violators = set()
+        for violator in self.violators.all():
+            violators.add(violator.name)
         return violators
 
     def roll_back_to_stage(self, stage: int) -> None:

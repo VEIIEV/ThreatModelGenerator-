@@ -5,23 +5,69 @@
     <title>Title</title>
     {% load static %}
     <script src="{% static 'projects/check_box_val.js' %}" defer></script>
+    <script src="{% static 'projects/check_box_disable.js' %}"></script>
 </head>
 <body>
-{%  include 'projects/nav_bar.html' %}
+{% include 'projects/nav_bar.html' %}
 
 
 <form action="{% url 'projects:CreateProject' %}?stage=7&id={{ project.id }}" method="post">
 
     {% csrf_token %}
     <p>выберети нарушителей</p>
-
     {% for violator in violators %}
+
+        <p>---------------------------------------</p>
         <input type="checkbox" id="{{ violator.lvl }}" value="{{ violator.lvl }}"
                {% if violator.name in v_lvl_names %}checked{% endif %} name="options">
         <label for="{{ violator.lvl }}">{{ violator.name }}</label><br>
+        <p>---------------------------------------</p>
+        {% for viol_type in violator.violators.all %}
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="checkbox" id="{{ viol_type.id }}type{{ violator.lvl }}" value="{{ viol_type.id }}type"
+                   {% if viol_type.name in v_names %}checked{% endif %} name="types"
+                   {% if violator.name not in v_lvl_names %}disabled  {% endif %}>
+            <label for="{{ viol_type.id }}type">{{ viol_type.name }}</label><br>
+        {% endfor %}
+
+        <p>---------------------------------------</p>
+
     {% endfor %}
     <p><input type="submit" value="Далее"></p>
 </form>
+
+
+<form>
+    <input type="checkbox" id="checkbox1"> Checkbox 1
+    <input type="checkbox" id="checkbox2" disabled> Checkbox 2
+</form>
+
+<script>
+    {#    window.onload = function () {#}
+    {#    let elements = document.querySelectorAll("[id*='type']");#}
+    {#    for (let i = 0; i < elements.length; i++) {#}
+    {#        alert(elements[i].id);#}
+    {#    }#}
+    {#    window.onload = function() {#}
+    {#        let v = "{{ my_var|escapejs }}"; #}
+    {##}
+    {#        document.getElementById("checkbox1").addEventListener("change", function() {#}
+    {#            if (this.checked) {#}
+    {#                document.getElementById("checkbox2").disabled = false;#}
+    {#            } else {#}
+    {#                document.getElementById("checkbox2").disabled = true;#}
+    {#            }#}
+    {#        });#}
+    {##}
+    {#        document.getElementById("checkbox2").addEventListener("change", function() {#}
+    {#            if (!this.checked) {#}
+    {#                document.getElementById("checkbox1").checked = false;#}
+    {#            }#}
+    {#        });#}
+    {#    }#}
+
+
+</script>
 
 </body>
 </html>

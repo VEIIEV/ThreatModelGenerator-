@@ -49,15 +49,18 @@ class CreateProject(View):
             case None:
                 project = Projects.objects.create(user=request.user)
                 project.save()
-                return render(request, '../templates/projects/create_project_1.html', context={'project': project, 'stages_names': self.stages_names})
+                return render(request, '../templates/projects/create_project_1.html',
+                              context={'project': project, 'stages_names': self.stages_names})
             case '1':
-                return render(request, '../templates/projects/create_project_1.html', context={'project': project, 'stages_names': self.stages_names})
+                return render(request, '../templates/projects/create_project_1.html',
+                              context={'project': project, 'stages_names': self.stages_names})
             case '2':
                 return render(request, '../templates/projects/create_project_2.html',
                               context={'project': project,
                                        'system_type': self.system_type, 'stages_names': self.stages_names})
             case '3':
-                return render(request, '../templates/projects/create_project_3.html', context={'project': project, 'stages_names': self.stages_names})
+                return render(request, '../templates/projects/create_project_3.html',
+                              context={'project': project, 'stages_names': self.stages_names})
             case '4':
                 ncs = project.negative_consequences.values_list('id', flat=True)
                 return render(request, '../templates/projects/create_project_4.html',
@@ -91,15 +94,19 @@ class CreateProject(View):
             case '7':
 
                 v_lvl_names = project.get_violator_lvl_names()
+                v_names = project.get_violator_names()
                 return render(request, '../templates/projects/create_project_7.html',
                               context={'project': project,
                                        'violators': ViolatorLvls.objects.all(),
-                                       'v_lvl_names': v_lvl_names, 'stages_names': self.stages_names})
+                                       'v_lvl_names': v_lvl_names,
+                                       'stages_names': self.stages_names,
+                                       'v_names': v_names})
             case '8':
 
                 # todo добавить кнопку для выгрузки каждой таблице отдельно как excel
                 # todo добавить кнопку для выгрузки всего ворд документа
-                return render(request, '../templates/projects/create_project_8.html', context={'project': project, 'stages_names': self.stages_names})
+                return render(request, '../templates/projects/create_project_8.html',
+                              context={'project': project, 'stages_names': self.stages_names})
 
     def post(self, request: HttpRequest):
 
@@ -132,7 +139,8 @@ class CreateProject(View):
                 project.name_project = request.POST['name_project']
                 project.stage = 2
                 project.save()
-                return render(request, '../templates/projects/create_project_2.html', context={'project': project, 'stages_names': self.stages_names})
+                return render(request, '../templates/projects/create_project_2.html',
+                              context={'project': project, 'stages_names': self.stages_names})
             case '2':
                 project.type = request.POST['type']
                 project.stage = 3
@@ -146,11 +154,12 @@ class CreateProject(View):
                 project.save()
                 return render(request, '../templates/projects/create_project_4.html',
                               context={'project': project,
-                                       'negative_consequences': NegativeConsequences.objects.all(), 'stages_names': self.stages_names})
+                                       'negative_consequences': NegativeConsequences.objects.all(),
+                                       'stages_names': self.stages_names})
             case '4':
                 data = QueryDict(request.body)
-                ids = data.getlist('options')
-                for np_id in ids:
+                v_lvl_ids = data.getlist('options')
+                for np_id in v_lvl_ids:
                     neg_p = NegativeConsequences.objects.get(id=int(np_id))
                     project.negative_consequences.add(neg_p)
                     # project.save()
@@ -171,12 +180,12 @@ class CreateProject(View):
             case '5':
                 # TODO должно быть выбрано хотя бы 1 обязательное поле
                 data = QueryDict(request.body)
-                ids = data.getlist('options')
+                v_lvl_ids = data.getlist('options')
                 print(data)
 
                 # мне нужно параллельно составить словарь где ключ объект, значение список компонентов
                 object_to_response = {}
-                for obj_id in ids:
+                for obj_id in v_lvl_ids:
                     obj = ObjectOfInfluences.objects.get(id=int(obj_id))
                     project.object_inf.add(obj)
                     # составление списка компонентов для респонса
@@ -191,7 +200,7 @@ class CreateProject(View):
 
                 return render(request, '../templates/projects/create_project_6.html',
                               context={'project': project,
-                                       'objects': object_to_response, 'stages_names': self.stages_names })
+                                       'objects': object_to_response, 'stages_names': self.stages_names})
 
             case '6':
                 data = QueryDict(request.body)
@@ -205,21 +214,27 @@ class CreateProject(View):
                 project.save()
                 return render(request, '../templates/projects/create_project_7.html',
                               context={'project': project,
-                                       'violators': ViolatorLvls.objects.all(), 'stages_names': self.stages_names})
+                                       'violators': ViolatorLvls.objects.all().order_by('alias'),
+                                       'stages_names': self.stages_names})
 
             case '7':
                 data = QueryDict(request.body)
-                ids = data.getlist('options')
-                print(data)
-                for vio_lvl in ids:
+                v_lvl_ids = data.getlist('options')
+                v_ids: list[str] = data.getlist('types')
+                for vio_lvl in v_lvl_ids:
                     project.violator_lvls.add(ViolatorLvls.objects.get(lvl=vio_lvl))
-                    violators = ViolatorLvls.objects.get(lvl=vio_lvl).violators.all()
-                    for violator in violators:
-                        project.violators.add(violator)
+                    # violators = ViolatorLvls.objects.get(lvl=vio_lvl).violators.all()
+                    # for violator in violators:
+                    #     project.violators.add(violator)
+
+                for v_id in v_ids:
+                    i = v_id.split('t',1)[0]
+                    project.violators.add(Violators.objects.get(id=i))
                 project.stage = 8
                 project.save()
 
-                return render(request, '../templates/projects/create_project_8.html', context={'project': project, 'stages_names': self.stages_names})
+                return render(request, '../templates/projects/create_project_8.html',
+                              context={'project': project, 'stages_names': self.stages_names})
             case '8':
                 # todo дело сделано, показываем итог и выгружаем док
                 response = generate_doc(project)
