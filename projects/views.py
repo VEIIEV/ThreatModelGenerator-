@@ -228,7 +228,7 @@ class CreateProject(View):
                     #     project.violators.add(violator)
 
                 for v_id in v_ids:
-                    i = v_id.split('t',1)[0]
+                    i = v_id.split('t', 1)[0]
                     project.violators.add(Violators.objects.get(id=i))
                 project.stage = 8
                 project.save()
@@ -245,6 +245,14 @@ class ChooseSystemLvl(View):
     system_lvl_dict = {'1': [[1, 1], [1, 2], [1, 3], [2, 1]],
                        '2': [[2, 2], [2, 3], [3, 1]],
                        '3': [[3, 2], [3, 3]]}
+    stages_names = {'1': "Наименование Проекта",
+                    '2': "Тип системы",
+                    '3': "Уровень системы",
+                    '4': "Негативные последствия",
+                    '5': "Объект воздействия",
+                    '6': "Компонент воздействия",
+                    '7': "Тип нарушителя",
+                    '8': "Генерация отчёта"}
 
     def get(self, request: HttpRequest):
         project_id = request.GET.get('id')
@@ -280,7 +288,8 @@ class ChooseSystemLvl(View):
                         break
                 return render(request, '../templates/projects/create_project_4.html',
                               context={'project': project,
-                                       'negative_consequences': NegativeConsequences.objects.all()})
+                                       'negative_consequences': NegativeConsequences.objects.all(),
+                                       'stages_names': self.stages_names})
 
             case 'ISP':
                 pass
